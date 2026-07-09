@@ -212,6 +212,9 @@ select.chip{margin-left:auto;appearance:none;padding-right:36px;
 
 footer{padding:36px 0 44px;text-align:center;color:var(--ink-soft);font-size:.8rem}
 footer .fm{font-family:var(--latin);letter-spacing:.24em;color:var(--ink);display:block;margin-bottom:6px}
+footer .footer-links{margin-top:10px}
+footer .footer-links a{color:var(--ink-soft);text-decoration:underline}
+footer .footer-links a:hover{color:var(--rose)}
 
 /* ---------- Modal ---------- */
 .modal-overlay{
@@ -244,6 +247,7 @@ footer .fm{font-family:var(--latin);letter-spacing:.24em;color:var(--ink);displa
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .modal .btn{width:100%;text-align:center;margin-top:6px;border:1px solid var(--ink)}
 .form-note{font-size:.78rem;color:var(--ink-soft);margin-top:14px;text-align:center}
+.form-note a{color:var(--rose);text-decoration:underline}
 .modal-success{display:none;text-align:center;padding:20px 0}
 .modal-success.show{display:block}
 .modal-success .mark{font-size:2rem;color:var(--rose);margin-bottom:14px}

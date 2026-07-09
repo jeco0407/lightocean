@@ -73,6 +73,15 @@ section{padding:70px 0}
 .breadcrumb a{text-decoration:none;color:var(--ink-soft)}
 .breadcrumb a:hover{color:var(--rose)}
 
+/* ---------- Search ---------- */
+.search-bar{margin-bottom:18px}
+.search-bar input{
+  width:100%;font-family:var(--sans);font-size:1rem;color:var(--ink);
+  background:#fff;border:1px solid var(--ink);padding:14px 18px;
+}
+.search-bar input:focus{outline:none;border-color:var(--rose)}
+.search-bar input::placeholder{color:var(--ink-soft)}
+
 /* ---------- Filters ---------- */
 .filters{
   display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--ink);border-bottom:1px solid var(--rule);

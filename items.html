@@ -31,18 +31,17 @@
     <div class="sec-head"><span class="no">NO.01</span><h2>想租借的裝備</h2></div>
     <p class="sec-sub">先挑選你想租的商品,點進去就能比較所有出租人的價格與地區。</p>
 
+    <div class="search-bar">
+      <input type="search" id="searchBox" placeholder="輸入關鍵字搜尋,例如:blackpink 高雄">
+    </div>
+
     <div class="filters" id="catFilters">
       <button class="chip active" data-cat="all">全部</button>
       <button class="chip" data-cat="lightstick">手燈</button>
       <button class="chip" data-cat="phone">拍攝手機</button>
       <button class="chip" data-cat="binocular">望遠鏡</button>
       <button class="chip" data-cat="other">其他應援</button>
-      <select class="chip" id="regionFilter" aria-label="選擇地區">
-        <option value="all">所有地區</option>
-        <option value="北部">北部</option>
-        <option value="中部">中部</option>
-        <option value="南部">南部</option>
-      </select>
+      <select class="chip" id="regionFilter" aria-label="選擇縣市"></select>
     </div>
 
     <div class="catalog" id="grid"></div>
@@ -84,11 +83,7 @@
         <div class="field-row">
           <div class="field">
             <label for="lsRegion">地區</label>
-            <select id="lsRegion" required>
-              <option value="北部">北部</option>
-              <option value="中部">中部</option>
-              <option value="南部">南部</option>
-            </select>
+            <select id="lsRegion" required></select>
           </div>
           <div class="field"><label for="lsPrice">日租金(NT$)</label><input id="lsPrice" type="number" min="0" required></div>
         </div>
@@ -117,18 +112,56 @@
 <script>
 const grid=document.getElementById('grid');
 const empty=document.getElementById('empty');
+const regionFilter=document.getElementById('regionFilter');
+const searchBox=document.getElementById('searchBox');
 let cat='all',region='all';
 
+regionFilter.innerHTML='<option value="all">所有縣市</option>'
+  +REGIONS.map(r=>`<option value="${r}">${r}</option>`).join('');
+
+function tokenize(q){
+  return q.trim().split(/\s+/).filter(Boolean);
+}
+
+/* tokens can be product keywords (match title/desc/label/類別) or a county/city name;
+   when a token is a county/city, listings are narrowed down to that county/city too */
+function matchProduct(p, tokens, pool){
+  if(!tokens.length)return{match:true,listings:pool};
+  const textFields=[p.title,p.desc,p.label,CAT_NAME[p.cat]].filter(Boolean).join(' ').toLowerCase();
+  let listings=pool;
+  for(const raw of tokens){
+    const t=raw.toLowerCase();
+    if(textFields.includes(t))continue;
+    const isRegionToken=REGIONS.some(r=>r.includes(raw));
+    if(isRegionToken){
+      listings=listings.filter(l=>l.region.includes(raw));
+      if(!listings.length)return{match:false,listings:[]};
+      continue;
+    }
+    return{match:false,listings:[]};
+  }
+  return{match:true,listings};
+}
+
 function render(){
-  const list=PRODUCTS.filter(p=>{
-    if(cat!=='all'&&p.cat!==cat)return false;
-    if(region!=='all'&&!listingsFor(p.id).some(l=>l.region===region))return false;
-    return true;
+  const tokens=tokenize(searchBox.value);
+  const results=[];
+  PRODUCTS.forEach(p=>{
+    if(cat!=='all'&&p.cat!==cat)return;
+    let pool=listingsFor(p.id);
+    if(region!=='all'){
+      pool=pool.filter(l=>l.region===region);
+      if(!pool.length)return;
+    }
+    const{match,listings}=matchProduct(p,tokens,pool);
+    if(!match)return;
+    results.push({product:p,listings});
   });
-  grid.innerHTML=list.map(p=>{
-    const s=productSummary(p);
-    const priceLabel=s.minPrice!=null?`NT$${s.minPrice} 起`:'尚無出租';
-    const countLabel=s.count?`${s.count} 位出租人・${s.regions.join('/')}`:'目前無人出租,當第一位吧';
+  grid.innerHTML=results.map(({product:p,listings})=>{
+    const prices=listings.map(l=>l.price);
+    const regions=[...new Set(listings.map(l=>l.region))];
+    const priceLabel=prices.length?`NT$${Math.min(...prices)} 起`:'尚無出租';
+    const countLabel=listings.length?`${listings.length} 位出租人・${regions.join('/')}`:'目前無人出租,當第一位吧';
     return `
     <a class="entry" href="item.html?id=${p.id}">
       <div class="icon">${p.icon}</div>
@@ -141,14 +174,15 @@ function render(){
       <span class="btn" aria-hidden="true">比較出租資訊 →</span>
     </a>`;
   }).join('');
-  empty.style.display=list.length?'none':'block';
+  empty.style.display=results.length?'none':'block';
 }
 document.getElementById('catFilters').addEventListener('click',e=>{
   const b=e.target.closest('button.chip');if(!b)return;
   document.querySelectorAll('#catFilters button.chip').forEach(c=>c.classList.remove('active'));
   b.classList.add('active');cat=b.dataset.cat;render();
 });
-document.getElementById('regionFilter').addEventListener('change',e=>{region=e.target.value;render();});
+regionFilter.addEventListener('change',e=>{region=e.target.value;render();});
+searchBox.addEventListener('input',render);
 render();
 
 /* ---------- Modal helpers ---------- */
@@ -169,6 +203,9 @@ const listOverlay=document.getElementById('listOverlay');
 const listForm=document.getElementById('listForm');
 const lsProduct=document.getElementById('lsProduct');
 const newProductFields=document.getElementById('newProductFields');
+
+const lsRegion=document.getElementById('lsRegion');
+lsRegion.innerHTML=REGIONS.map(r=>`<option value="${r}">${r}</option>`).join('');
 
 function populateProductSelect(){
   lsProduct.innerHTML=PRODUCTS.map(p=>`<option value="${p.id}">［${CAT_NAME[p.cat]}］${p.title}</option>`).join('')

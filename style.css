@@ -28,17 +28,27 @@ a{color:inherit}
   text-decoration:none;
 }
 .masthead .title b{color:var(--rose);font-weight:600}
-.masthead-right{display:flex;align-items:baseline;gap:24px;flex-wrap:wrap}
+.masthead-right{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
 .masthead nav{display:flex;gap:24px;font-size:.85rem}
 .masthead nav a{text-decoration:none;color:var(--ink-soft);letter-spacing:.08em}
 .masthead nav a:hover,.masthead nav a:focus-visible{color:var(--rose)}
-.user-area{display:flex;align-items:baseline;gap:14px;font-size:.8rem}
+.user-area{display:flex;align-items:center;gap:14px;font-size:.8rem}
 .user-badge{color:var(--ink-soft)}
 .logout-btn{
   background:none;border:none;cursor:pointer;color:var(--ink-soft);
   font-family:var(--sans);font-size:.8rem;letter-spacing:.05em;text-decoration:underline;padding:0;
 }
 .logout-btn:hover{color:var(--rose)}
+.auth-login-link{
+  text-decoration:none;color:var(--ink-soft);font-size:.85rem;letter-spacing:.06em;
+}
+.auth-login-link:hover,.auth-login-link:focus-visible{color:var(--rose)}
+.auth-signup-btn{
+  display:inline-block;text-decoration:none;background:var(--rose);color:#fff;
+  font-family:var(--sans);font-size:.82rem;font-weight:500;letter-spacing:.08em;
+  padding:9px 22px;border-radius:999px;border:1px solid var(--rose);
+}
+.auth-signup-btn:hover,.auth-signup-btn:focus-visible{background:var(--ink);border-color:var(--ink)}
 .issue-line{
   border-bottom:1px solid var(--rule);
   font-family:var(--latin);font-size:.78rem;letter-spacing:.3em;color:var(--ink-soft);

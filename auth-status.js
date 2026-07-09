@@ -25,7 +25,7 @@ async function renderAuthArea(){
       location.reload();
     });
   }else{
-    area.innerHTML = `<a class="btn line" href="auth.html?next=${next}" style="padding:8px 18px;font-size:.78rem">登入 / 註冊</a>`;
+    area.innerHTML = `<a class="auth-login-link" href="auth.html?next=${next}">登入</a><a class="auth-signup-btn" href="auth.html?mode=signup&next=${next}">註冊</a>`;
   }
 }
 

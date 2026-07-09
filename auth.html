@@ -68,6 +68,10 @@ document.querySelectorAll('.auth-tabs .tab').forEach(tab => {
   });
 });
 
+if (params.get('mode') === 'signup') {
+  document.querySelector('.auth-tabs .tab[data-mode="signup"]').click();
+}
+
 document.getElementById('authForm').addEventListener('submit', async e => {
   e.preventDefault();
   const email = document.getElementById('authEmail').value.trim();

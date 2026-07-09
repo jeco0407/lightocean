@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商品詳情｜手燈租借所 LIGHT OCEAN</title>
+<meta name="description" content="比較同一件商品的所有出租人資訊,挑選價格最划算或地區最近的出租人。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="masthead">
+  <div class="wrap">
+    <a class="title" href="index.html">LIGHT <b>OCEAN</b></a>
+    <nav>
+      <a href="items.html">RENTAL 找租借</a>
+      <a href="index.html#flow">GUIDE 怎麼租</a>
+      <a href="index.html#trust">TRUST 安心保障</a>
+      <a href="items.html?action=list">LIST 我要出租</a>
+    </nav>
+  </div>
+</div>
+<div class="issue-line">FANS-TO-FANS RENTAL JOURNAL — VOL.01 / 2026</div>
+
+<div class="wrap breadcrumb"><a href="index.html">首頁</a> / <a href="items.html">找租借</a> / <span id="crumbTitle"></span></div>
+
+<div id="notFound" class="wrap" style="display:none;padding:70px 0;text-align:center">
+  <p class="sec-sub" style="padding-left:0">找不到這個商品,它可能已經下架。</p>
+  <a class="btn" href="items.html">回到找租借頁面</a>
+</div>
+
+<section id="productSection" style="display:none">
+  <div class="wrap">
+    <div class="product-head">
+      <div class="icon" id="pIcon"></div>
+      <div>
+        <span class="cat-label" id="pLabel"></span>
+        <h1 id="pTitle"></h1>
+        <p class="desc" id="pDesc"></p>
+      </div>
+    </div>
+
+    <div class="sortbar">
+      <span class="count" id="listingCount"></span>
+      <select class="chip" id="sortSelect" aria-label="排序方式" style="border:1px solid var(--rule)">
+        <option value="price">依價格由低到高</option>
+        <option value="region">依地區</option>
+      </select>
+    </div>
+
+    <div class="catalog" id="grid"></div>
+    <p class="empty" id="empty">目前還沒有人出租這件商品——當第一位出租人吧。</p>
+  </div>
+</section>
+
+<div class="modal-overlay" id="inquiryOverlay">
+  <div class="modal">
+    <button class="modal-close" type="button" data-close aria-label="關閉">✕</button>
+    <div class="modal-body">
+      <span class="no">INQUIRY</span>
+      <h2>詢問租借</h2>
+      <div class="item-ref" id="inquiryItemRef"></div>
+      <form id="inquiryForm">
+        <div class="field"><label for="iqName">你的稱呼</label><input id="iqName" required></div>
+        <div class="field-row">
+          <div class="field"><label for="iqContact">聯絡方式</label><input id="iqContact" placeholder="Email / 電話 / 社群帳號" required></div>
+          <div class="field"><label for="iqDate">想租日期</label><input id="iqDate" type="date" required></div>
+        </div>
+        <div class="field"><label for="iqMsg">給出租人的話</label><textarea id="iqMsg" placeholder="想租借的場次、地點面交需求等"></textarea></div>
+        <button class="btn" type="submit">送出詢問</button>
+        <p class="form-note">送出後平台會將訊息轉交給出租人,不會公開你的聯絡方式。</p>
+      </form>
+    </div>
+    <div class="modal-success" id="inquirySuccess">
+      <div class="mark">✓</div>
+      <h2>詢問已送出</h2>
+      <p>出租人會盡快透過你留下的聯絡方式回覆你,請留意通知。</p>
+      <button class="btn line" type="button" data-close>關閉</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span class="fm">LIGHT OCEAN — 手燈租借所</span>
+  粉絲互助租借媒合平台(MVP 測試中)・平台僅提供媒合資訊,交易細節請依平台規範進行。© 2026
+</footer>
+
+<script src="data.js"></script>
+<script>
+const params=new URLSearchParams(location.search);
+const productId=params.get('id');
+const product=PRODUCTS.find(p=>p.id===productId);
+
+if(!product){
+  document.getElementById('notFound').style.display='';
+}else{
+  document.title=`${product.title}｜手燈租借所 LIGHT OCEAN`;
+  document.getElementById('crumbTitle').textContent=product.title;
+  document.getElementById('pIcon').textContent=product.icon;
+  document.getElementById('pLabel').textContent=product.label;
+  document.getElementById('pTitle').textContent=product.title;
+  document.getElementById('pDesc').textContent=product.desc||'';
+  document.getElementById('productSection').style.display='';
+
+  const grid=document.getElementById('grid');
+  const empty=document.getElementById('empty');
+  const listingCount=document.getElementById('listingCount');
+  const sortSelect=document.getElementById('sortSelect');
+
+  function render(){
+    const listings=listingsFor(product.id).slice();
+    if(sortSelect.value==='price'){
+      listings.sort((a,b)=>a.price-b.price);
+    }else{
+      listings.sort((a,b)=>a.region.localeCompare(b.region,'zh-Hant'));
+    }
+    listingCount.textContent=`共 ${listings.length} 位出租人`;
+    grid.innerHTML=listings.map(l=>`
+      <article class="entry">
+        <div class="icon">📍</div>
+        <div>
+          <span class="cat-label">${l.region}</span>
+          <h3>${l.meta||'未提供交易備註'}</h3>
+          <div class="meta">押金 NT$${l.deposit}</div>
+        </div>
+        <div class="pricing"><b>NT$${l.price}</b><small>per day / 日</small></div>
+        <button class="btn" type="button" data-inquire="${l.id}">詢問</button>
+      </article>`).join('');
+    empty.style.display=listings.length?'none':'block';
+  }
+  sortSelect.addEventListener('change',render);
+  render();
+
+  /* ---------- Modal helpers ---------- */
+  function openModal(overlay){
+    overlay.classList.add('open');
+    overlay.querySelector('.modal-body').style.display='';
+    overlay.querySelector('.modal-success').classList.remove('show');
+  }
+  function closeModal(overlay){overlay.classList.remove('open');}
+  document.querySelectorAll('.modal-overlay').forEach(ov=>{
+    ov.addEventListener('click',e=>{
+      if(e.target===ov||e.target.closest('[data-close]'))closeModal(ov);
+    });
+  });
+
+  const inquiryOverlay=document.getElementById('inquiryOverlay');
+  const inquiryForm=document.getElementById('inquiryForm');
+  grid.addEventListener('click',e=>{
+    const b=e.target.closest('[data-inquire]');if(!b)return;
+    const listing=LISTINGS.find(l=>l.id===b.dataset.inquire);
+    document.getElementById('inquiryItemRef').textContent=`${product.title}・${listing.region}・NT$${listing.price} / 日`;
+    inquiryForm.reset();
+    openModal(inquiryOverlay);
+  });
+  inquiryForm.addEventListener('submit',e=>{
+    e.preventDefault();
+    inquiryOverlay.querySelector('.modal-body').style.display='none';
+    document.getElementById('inquirySuccess').classList.add('show');
+  });
+}
+</script>
+</body>
+</html>

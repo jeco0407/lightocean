@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>找租借｜手燈租借所 LIGHT OCEAN</title>
+<meta name="description" content="瀏覽可租借的手燈、拍攝手機、望遠鏡商品,點進商品可比較所有出租人的價格與地區。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="masthead">
+  <div class="wrap">
+    <a class="title" href="index.html">LIGHT <b>OCEAN</b></a>
+    <nav>
+      <a href="items.html">RENTAL 找租借</a>
+      <a href="index.html#flow">GUIDE 怎麼租</a>
+      <a href="index.html#trust">TRUST 安心保障</a>
+      <a href="items.html?action=list">LIST 我要出租</a>
+    </nav>
+  </div>
+</div>
+<div class="issue-line">FANS-TO-FANS RENTAL JOURNAL — VOL.01 / 2026</div>
+
+<div class="wrap breadcrumb"><a href="index.html">首頁</a> / 找租借</div>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="no">NO.01</span><h2>想租借的裝備</h2></div>
+    <p class="sec-sub">先挑選你想租的商品,點進去就能比較所有出租人的價格與地區。</p>
+
+    <div class="filters" id="catFilters">
+      <button class="chip active" data-cat="all">全部</button>
+      <button class="chip" data-cat="lightstick">手燈</button>
+      <button class="chip" data-cat="phone">拍攝手機</button>
+      <button class="chip" data-cat="binocular">望遠鏡</button>
+      <button class="chip" data-cat="other">其他應援</button>
+      <select class="chip" id="regionFilter" aria-label="選擇地區">
+        <option value="all">所有地區</option>
+        <option value="北部">北部</option>
+        <option value="中部">中部</option>
+        <option value="南部">南部</option>
+      </select>
+    </div>
+
+    <div class="catalog" id="grid"></div>
+    <p class="empty" id="empty">這個條件目前沒有商品——換個篩選,或直接刊登你的裝備。</p>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="cta">
+    <h2>讓閒置的裝備,替另一位粉絲亮起來</h2>
+    <p>不是每個人都能收齊每一代手燈,也不是每支燈都有機會常常進場。把暫時休息的裝備分享出來——直接在站內填寫刊登表單,即刻上架讓其他粉絲看見。</p>
+    <button class="btn" type="button" id="openListBtn">填寫出租刊登表單</button>
+  </div>
+</section>
+
+<div class="modal-overlay" id="listOverlay">
+  <div class="modal">
+    <button class="modal-close" type="button" data-close aria-label="關閉">✕</button>
+    <div class="modal-body">
+      <span class="no">LISTING</span>
+      <h2>刊登我的裝備</h2>
+      <form id="listForm">
+        <div class="field">
+          <label for="lsProduct">選擇商品</label>
+          <select id="lsProduct" required></select>
+        </div>
+        <div id="newProductFields" style="display:none">
+          <div class="field"><label for="lsNewTitle">新品項名稱</label><input id="lsNewTitle" placeholder="例:ARMY BOMB Ver.5 官方手燈"></div>
+          <div class="field">
+            <label for="lsNewCat">品類</label>
+            <select id="lsNewCat">
+              <option value="lightstick">手燈</option>
+              <option value="phone">拍攝手機</option>
+              <option value="binocular">望遠鏡</option>
+              <option value="other">其他應援</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="lsRegion">地區</label>
+            <select id="lsRegion" required>
+              <option value="北部">北部</option>
+              <option value="中部">中部</option>
+              <option value="南部">南部</option>
+            </select>
+          </div>
+          <div class="field"><label for="lsPrice">日租金(NT$)</label><input id="lsPrice" type="number" min="0" required></div>
+        </div>
+        <div class="field"><label for="lsDeposit">押金(NT$)</label><input id="lsDeposit" type="number" min="0" required></div>
+        <div class="field"><label for="lsMeta">交易備註</label><input id="lsMeta" placeholder="面交地點、寄送方式、注意事項"></div>
+        <div class="field"><label for="lsContact">你的聯絡方式</label><input id="lsContact" placeholder="Email / 電話 / 社群帳號" required></div>
+        <button class="btn" type="submit">送出刊登</button>
+        <p class="form-note">送出後將直接顯示在商品的出租人列表中(MVP 測試階段,無審核延遲)。</p>
+      </form>
+    </div>
+    <div class="modal-success" id="listSuccess">
+      <div class="mark">✓</div>
+      <h2>已成功上架</h2>
+      <p>你的物品已加入商品目錄,其他粉絲可以直接詢問你囉。</p>
+      <button class="btn line" type="button" data-close>關閉</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span class="fm">LIGHT OCEAN — 手燈租借所</span>
+  粉絲互助租借媒合平台(MVP 測試中)・平台僅提供媒合資訊,交易細節請依平台規範進行。© 2026
+</footer>
+
+<script src="data.js"></script>
+<script>
+const grid=document.getElementById('grid');
+const empty=document.getElementById('empty');
+let cat='all',region='all';
+
+function render(){
+  const list=PRODUCTS.filter(p=>{
+    if(cat!=='all'&&p.cat!==cat)return false;
+    if(region!=='all'&&!listingsFor(p.id).some(l=>l.region===region))return false;
+    return true;
+  });
+  grid.innerHTML=list.map(p=>{
+    const s=productSummary(p);
+    const priceLabel=s.minPrice!=null?`NT$${s.minPrice} 起`:'尚無出租';
+    const countLabel=s.count?`${s.count} 位出租人・${s.regions.join('/')}`:'目前無人出租,當第一位吧';
+    return `
+    <a class="entry" href="item.html?id=${p.id}">
+      <div class="icon">${p.icon}</div>
+      <div>
+        <span class="cat-label">${p.label}</span>
+        <h3>${p.title}</h3>
+        <div class="meta">${countLabel}</div>
+      </div>
+      <div class="pricing"><b>${priceLabel}</b><small>per day / 日</small></div>
+      <span class="btn" aria-hidden="true">比較出租資訊 →</span>
+    </a>`;
+  }).join('');
+  empty.style.display=list.length?'none':'block';
+}
+document.getElementById('catFilters').addEventListener('click',e=>{
+  const b=e.target.closest('button.chip');if(!b)return;
+  document.querySelectorAll('#catFilters button.chip').forEach(c=>c.classList.remove('active'));
+  b.classList.add('active');cat=b.dataset.cat;render();
+});
+document.getElementById('regionFilter').addEventListener('change',e=>{region=e.target.value;render();});
+render();
+
+/* ---------- Modal helpers ---------- */
+function openModal(overlay){
+  overlay.classList.add('open');
+  overlay.querySelector('.modal-body').style.display='';
+  overlay.querySelector('.modal-success').classList.remove('show');
+}
+function closeModal(overlay){overlay.classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(ov=>{
+  ov.addEventListener('click',e=>{
+    if(e.target===ov||e.target.closest('[data-close]'))closeModal(ov);
+  });
+});
+
+/* ---------- Listing modal ---------- */
+const listOverlay=document.getElementById('listOverlay');
+const listForm=document.getElementById('listForm');
+const lsProduct=document.getElementById('lsProduct');
+const newProductFields=document.getElementById('newProductFields');
+
+function populateProductSelect(){
+  lsProduct.innerHTML=PRODUCTS.map(p=>`<option value="${p.id}">［${CAT_NAME[p.cat]}］${p.title}</option>`).join('')
+    +'<option value="__new__">＋ 新增品項(不在列表中)</option>';
+}
+lsProduct.addEventListener('change',()=>{
+  newProductFields.style.display=lsProduct.value==='__new__'?'':'none';
+});
+
+document.getElementById('openListBtn').addEventListener('click',()=>{
+  populateProductSelect();
+  listForm.reset();
+  newProductFields.style.display='none';
+  openModal(listOverlay);
+});
+
+listForm.addEventListener('submit',e=>{
+  e.preventDefault();
+  let productId=lsProduct.value;
+  if(productId==='__new__'){
+    const title=document.getElementById('lsNewTitle').value.trim();
+    const newCat=document.getElementById('lsNewCat').value;
+    productId='p'+Date.now();
+    PRODUCTS.push({id:productId,cat:newCat,icon:CAT_ICON[newCat],label:CAT_LABEL[newCat],title,desc:''});
+  }
+  LISTINGS.push({
+    id:'l'+Date.now(),
+    productId,
+    region:document.getElementById('lsRegion').value,
+    price:Number(document.getElementById('lsPrice').value),
+    deposit:Number(document.getElementById('lsDeposit').value),
+    meta:document.getElementById('lsMeta').value.trim(),
+    contact:document.getElementById('lsContact').value.trim(),
+  });
+  listForm.reset();
+  render();
+  listOverlay.querySelector('.modal-body').style.display='none';
+  document.getElementById('listSuccess').classList.add('show');
+});
+
+if(new URLSearchParams(location.search).get('action')==='list'){
+  populateProductSelect();
+  openModal(listOverlay);
+}
+</script>
+</body>
+</html>

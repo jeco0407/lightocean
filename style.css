@@ -87,6 +87,15 @@ section{padding:70px 0}
 }
 .auth-tabs .tab.active{color:var(--rose);font-weight:700;border-color:var(--rose)}
 
+/* ---------- Avatar picker ---------- */
+.avatar-grid{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:4px}
+.avatar-option{
+  font-size:1.6rem;width:52px;height:52px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--rule);background:#fff;cursor:pointer;
+}
+.avatar-option:hover{border-color:var(--ink-soft)}
+.avatar-option.selected{border-color:var(--rose);background:var(--paper-deep)}
+
 /* ---------- Breadcrumb ---------- */
 .breadcrumb{
   font-size:.82rem;color:var(--ink-soft);padding:20px 0 0;letter-spacing:.04em;

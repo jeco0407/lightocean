@@ -123,8 +123,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="supabase-client.js"></script>
-<script src="auth-status.js"></script>
 <script src="data.js"></script>
+<script src="auth-status.js"></script>
 <script>
 let PRODUCTS=[],LISTINGS=[];
 
@@ -241,6 +241,8 @@ document.getElementById('openListBtn').addEventListener('click',async ()=>{
   populateProductSelect();
   listForm.reset();
   newProductFields.style.display='none';
+  const profile=await fetchProfile(currentUser.id);
+  if(profile && profile.home_region)lsRegion.value=profile.home_region;
   openModal(listOverlay);
 });
 
@@ -284,6 +286,8 @@ listForm.addEventListener('submit',async e=>{
   if(new URLSearchParams(location.search).get('action')==='list'){
     if(await requireLogin()){
       populateProductSelect();
+      const profile=await fetchProfile(currentUser.id);
+      if(profile && profile.home_region)lsRegion.value=profile.home_region;
       openModal(listOverlay);
     }
   }

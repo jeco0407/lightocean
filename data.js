@@ -8,6 +8,8 @@ const REGIONS=[
   '台東縣','澎湖縣','金門縣','連江縣',
 ];
 
+const AVATARS=['🐰','🐻','🐱','🦊','🐼','🦄','🐧','🐨','🦁','🐶','🐹','🦋'];
+
 async function fetchProducts(){
   const {data,error}=await supabaseClient.from('products').select('*').order('created_at',{ascending:true});
   if(error){console.error(error);return[];}
@@ -62,4 +64,19 @@ async function insertInquiry({listingId,name,contact,wantedDate,message}){
     listing_id:listingId,name,contact,wanted_date:wantedDate||null,message,created_by:user.id,
   });
   if(error)throw error;
+}
+
+async function fetchProfile(userId){
+  const{data,error}=await supabaseClient.from('profiles').select('*').eq('id',userId).maybeSingle();
+  if(error){console.error(error);return null;}
+  return data;
+}
+
+async function upsertProfile({displayName,avatar,homeRegion}){
+  const{data:{user}}=await supabaseClient.auth.getUser();
+  const{data,error}=await supabaseClient.from('profiles').upsert({
+    id:user.id,display_name:displayName,avatar,home_region:homeRegion,updated_at:new Date().toISOString(),
+  }).select().single();
+  if(error)throw error;
+  return data;
 }

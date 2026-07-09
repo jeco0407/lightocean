@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>會員資料｜手燈租借所 LIGHT OCEAN</title>
+<meta name="description" content="編輯你的暱稱、頭像與常用地區,刊登與詢問表單會自動帶入這些資料。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="masthead">
+  <div class="wrap">
+    <a class="title" href="index.html">LIGHT <b>OCEAN</b></a>
+    <div class="masthead-right">
+      <nav>
+        <a href="items.html">RENTAL 找租借</a>
+        <a href="index.html#flow">GUIDE 怎麼租</a>
+        <a href="index.html#trust">TRUST 安心保障</a>
+        <a href="items.html?action=list">LIST 我要出租</a>
+      </nav>
+      <div class="user-area" id="authArea"></div>
+    </div>
+  </div>
+</div>
+<div class="issue-line">FANS-TO-FANS RENTAL JOURNAL — VOL.01 / 2026</div>
+
+<div class="wrap breadcrumb"><a href="index.html">首頁</a> / 會員資料</div>
+
+<section>
+  <div class="wrap" style="max-width:560px">
+    <div class="sec-head"><span class="no">MEMBER</span><h2>會員資料</h2></div>
+    <p class="sec-sub" style="padding-left:0">這裡的暱稱與常用地區,會自動帶入刊登與詢問表單。</p>
+
+    <form id="profileForm">
+      <div class="field">
+        <label>選擇頭像</label>
+        <div class="avatar-grid" id="avatarGrid"></div>
+      </div>
+      <div class="field"><label for="pfName">暱稱 / 顯示名稱</label><input id="pfName" placeholder="其他粉絲會看到這個名字"></div>
+      <div class="field">
+        <label for="pfRegion">常用地區(縣市)</label>
+        <select id="pfRegion">
+          <option value="">未設定</option>
+        </select>
+      </div>
+      <button class="btn" type="submit">儲存變更</button>
+      <p class="form-note" id="profileMsg"></p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <span class="fm">LIGHT OCEAN — 手燈租借所</span>
+  粉絲互助租借媒合平台(MVP 測試中)・平台僅提供媒合資訊,交易細節請依平台規範進行。© 2026
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-client.js"></script>
+<script src="data.js"></script>
+<script src="auth-status.js"></script>
+<script>
+(async () => {
+  await sessionReady;
+  if(!currentUser){
+    location.replace(`auth.html?next=${encodeURIComponent(location.pathname)}`);
+    return;
+  }
+
+  const avatarGrid=document.getElementById('avatarGrid');
+  const pfRegion=document.getElementById('pfRegion');
+  const pfName=document.getElementById('pfName');
+  const profileMsg=document.getElementById('profileMsg');
+  let selectedAvatar='';
+
+  avatarGrid.innerHTML=AVATARS.map(a=>`<button type="button" class="avatar-option" data-avatar="${a}">${a}</button>`).join('');
+  pfRegion.innerHTML+=REGIONS.map(r=>`<option value="${r}">${r}</option>`).join('');
+
+  function selectAvatar(a){
+    selectedAvatar=a;
+    avatarGrid.querySelectorAll('.avatar-option').forEach(btn=>{
+      btn.classList.toggle('selected',btn.dataset.avatar===a);
+    });
+  }
+  avatarGrid.addEventListener('click',e=>{
+    const b=e.target.closest('.avatar-option');if(!b)return;
+    selectAvatar(b.dataset.avatar);
+  });
+
+  const profile=await fetchProfile(currentUser.id);
+  if(profile){
+    pfName.value=profile.display_name||'';
+    pfRegion.value=profile.home_region||'';
+    if(profile.avatar)selectAvatar(profile.avatar);
+  }
+
+  document.getElementById('profileForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    profileMsg.textContent='儲存中...';
+    try{
+      await upsertProfile({
+        displayName:pfName.value.trim(),
+        avatar:selectedAvatar,
+        homeRegion:pfRegion.value,
+      });
+      profileMsg.textContent='已儲存!';
+      renderAuthArea();
+    }catch(err){
+      profileMsg.textContent=`儲存失敗:${err.message}`;
+    }
+  });
+})();
+</script>
+</body>
+</html>

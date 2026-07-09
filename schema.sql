@@ -36,9 +36,27 @@ create table if not exists inquiries (
   created_at timestamptz not null default now()
 );
 
+create table if not exists profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  display_name text,
+  avatar text,
+  home_region text,
+  updated_at timestamptz not null default now()
+);
+
 alter table products enable row level security;
 alter table listings enable row level security;
 alter table inquiries enable row level security;
+alter table profiles enable row level security;
+
+create policy "read own profile" on profiles
+  for select using (auth.uid() = id);
+
+create policy "insert own profile" on profiles
+  for insert with check (auth.uid() = id);
+
+create policy "update own profile" on profiles
+  for update using (auth.uid() = id);
 
 -- anyone can browse; only logged-in members can list items or send inquiries
 create policy "public read products" on products

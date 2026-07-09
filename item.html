@@ -102,8 +102,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="supabase-client.js"></script>
-<script src="auth-status.js"></script>
 <script src="data.js"></script>
+<script src="auth-status.js"></script>
 <script>
 /* ---------- Modal helpers (shared by inquiry + login-prompt modals) ---------- */
 function openModal(overlay){
@@ -177,6 +177,8 @@ document.querySelectorAll('.modal-overlay').forEach(ov=>{
     activeListing=LISTINGS.find(l=>l.id===b.dataset.inquire);
     document.getElementById('inquiryItemRef').textContent=`${product.title}・${activeListing.region}・NT$${activeListing.price} / 日`;
     inquiryForm.reset();
+    const profile=await fetchProfile(currentUser.id);
+    if(profile && profile.display_name)document.getElementById('iqName').value=profile.display_name;
     inquiryFormMsg.textContent='送出後平台會將訊息轉交給出租人,不會公開你的聯絡方式。';
     openModal(inquiryOverlay);
   });

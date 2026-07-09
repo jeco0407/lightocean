@@ -38,7 +38,8 @@ a{color:inherit}
   background:none;border:none;cursor:pointer;padding:6px;order:-1;
 }
 .hamburger span{display:block;width:22px;height:2px;background:var(--ink)}
-.user-badge{color:var(--ink-soft)}
+.user-badge{color:var(--ink-soft);display:inline-flex;align-items:center;gap:6px}
+.user-avatar-thumb{width:22px;height:22px;border-radius:50%;object-fit:cover}
 .logout-btn{
   background:none;border:none;cursor:pointer;color:var(--ink-soft);
   font-family:var(--sans);font-size:.8rem;letter-spacing:.05em;text-decoration:underline;padding:0;
@@ -102,14 +103,14 @@ section{padding:70px 0}
 }
 .auth-tabs .tab.active{color:var(--rose);font-weight:700;border-color:var(--rose)}
 
-/* ---------- Avatar picker ---------- */
-.avatar-grid{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:4px}
-.avatar-option{
-  font-size:1.6rem;width:52px;height:52px;display:flex;align-items:center;justify-content:center;
-  border:1px solid var(--rule);background:#fff;cursor:pointer;
+/* ---------- Avatar upload ---------- */
+.avatar-upload-row{display:flex;align-items:center;gap:18px;margin-bottom:6px}
+.avatar-preview{
+  width:80px;height:80px;border-radius:50%;overflow:hidden;flex-shrink:0;
+  background:var(--paper-deep);border:1px solid var(--rule);
+  display:flex;align-items:center;justify-content:center;font-size:2rem;
 }
-.avatar-option:hover{border-color:var(--ink-soft)}
-.avatar-option.selected{border-color:var(--rose);background:var(--paper-deep)}
+.avatar-preview img{width:100%;height:100%;object-fit:cover}
 
 /* ---------- Breadcrumb ---------- */
 .breadcrumb{

@@ -39,10 +39,31 @@
 
     <form id="profileForm">
       <div class="field">
-        <label>選擇頭像</label>
-        <div class="avatar-grid" id="avatarGrid"></div>
+        <label>頭像</label>
+        <div class="avatar-upload-row">
+          <div class="avatar-preview" id="avatarPreviewWrap">
+            <img id="avatarPreview" alt="頭像預覽" style="display:none">
+            <span id="avatarPlaceholder">🧑</span>
+          </div>
+          <div>
+            <input type="file" id="avatarFile" accept="image/*">
+            <p class="form-note" style="margin-top:6px;text-align:left;padding-left:0">建議上傳正方形圖片,檔案小於 2MB。</p>
+          </div>
+        </div>
       </div>
       <div class="field"><label for="pfName">暱稱 / 顯示名稱</label><input id="pfName" placeholder="其他粉絲會看到這個名字"></div>
+      <div class="field-row">
+        <div class="field">
+          <label for="pfBirth">出生年月日</label>
+          <input type="date" id="pfBirth">
+        </div>
+        <div class="field">
+          <label for="pfGender">性別</label>
+          <select id="pfGender">
+            <option value="">未設定</option>
+          </select>
+        </div>
+      </div>
       <div class="field">
         <label for="pfRegion">常用地區(縣市)</label>
         <select id="pfRegion">
@@ -74,42 +95,72 @@
     return;
   }
 
-  const avatarGrid=document.getElementById('avatarGrid');
   const pfRegion=document.getElementById('pfRegion');
   const pfName=document.getElementById('pfName');
+  const pfBirth=document.getElementById('pfBirth');
+  const pfGender=document.getElementById('pfGender');
   const profileMsg=document.getElementById('profileMsg');
-  let selectedAvatar='';
+  const avatarFile=document.getElementById('avatarFile');
+  const avatarPreview=document.getElementById('avatarPreview');
+  const avatarPlaceholder=document.getElementById('avatarPlaceholder');
+  let pendingAvatarFile=null;
+  let currentAvatarUrl=null;
 
-  avatarGrid.innerHTML=AVATARS.map(a=>`<button type="button" class="avatar-option" data-avatar="${a}">${a}</button>`).join('');
   pfRegion.innerHTML+=REGIONS.map(r=>`<option value="${r}">${r}</option>`).join('');
+  pfGender.innerHTML+=GENDERS.map(g=>`<option value="${g.value}">${g.label}</option>`).join('');
 
-  function selectAvatar(a){
-    selectedAvatar=a;
-    avatarGrid.querySelectorAll('.avatar-option').forEach(btn=>{
-      btn.classList.toggle('selected',btn.dataset.avatar===a);
-    });
+  function showAvatar(url){
+    if(url){
+      avatarPreview.src=url;
+      avatarPreview.style.display='';
+      avatarPlaceholder.style.display='none';
+    }else{
+      avatarPreview.style.display='none';
+      avatarPlaceholder.style.display='';
+    }
   }
-  avatarGrid.addEventListener('click',e=>{
-    const b=e.target.closest('.avatar-option');if(!b)return;
-    selectAvatar(b.dataset.avatar);
+
+  avatarFile.addEventListener('change',()=>{
+    const file=avatarFile.files[0];
+    if(!file)return;
+    if(file.size>2*1024*1024){
+      profileMsg.textContent='圖片檔案請小於 2MB';
+      avatarFile.value='';
+      return;
+    }
+    pendingAvatarFile=file;
+    showAvatar(URL.createObjectURL(file));
   });
 
   const profile=await fetchProfile(currentUser.id);
   if(profile){
     pfName.value=profile.display_name||'';
     pfRegion.value=profile.home_region||'';
-    if(profile.avatar)selectAvatar(profile.avatar);
+    pfBirth.value=profile.birth_date||'';
+    pfGender.value=profile.gender||'';
+    currentAvatarUrl=profile.avatar||null;
+    showAvatar(currentAvatarUrl);
+  }else{
+    showAvatar(null);
   }
 
   document.getElementById('profileForm').addEventListener('submit',async e=>{
     e.preventDefault();
     profileMsg.textContent='儲存中...';
     try{
+      let avatarUrl=currentAvatarUrl;
+      if(pendingAvatarFile){
+        avatarUrl=await uploadAvatar(pendingAvatarFile);
+      }
       await upsertProfile({
         displayName:pfName.value.trim(),
-        avatar:selectedAvatar,
+        avatar:avatarUrl,
         homeRegion:pfRegion.value,
+        birthDate:pfBirth.value,
+        gender:pfGender.value,
       });
+      currentAvatarUrl=avatarUrl;
+      pendingAvatarFile=null;
       profileMsg.textContent='已儲存!';
       renderAuthArea();
     }catch(err){

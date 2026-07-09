@@ -39,8 +39,10 @@ create table if not exists inquiries (
 create table if not exists profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   display_name text,
-  avatar text,
+  avatar text, -- public URL of the uploaded avatar image (see avatars storage bucket below)
   home_region text,
+  birth_date date,
+  gender text,
   updated_at timestamptz not null default now()
 );
 
@@ -57,6 +59,23 @@ create policy "insert own profile" on profiles
 
 create policy "update own profile" on profiles
   for update using (auth.uid() = id);
+
+-- avatar image uploads: stored at avatars/<user_id>/avatar, public read, owner-only write
+insert into storage.buckets (id, name, public)
+values ('avatars', 'avatars', true)
+on conflict (id) do nothing;
+
+create policy "avatar images are publicly readable" on storage.objects
+  for select using (bucket_id = 'avatars');
+
+create policy "members can upload their own avatar" on storage.objects
+  for insert with check (bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1]);
+
+create policy "members can update their own avatar" on storage.objects
+  for update using (bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1]);
+
+create policy "members can delete their own avatar" on storage.objects
+  for delete using (bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1]);
 
 -- anyone can browse; only logged-in members can list items or send inquiries
 create policy "public read products" on products

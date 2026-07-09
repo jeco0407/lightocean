@@ -8,7 +8,7 @@ const REGIONS=[
   '台東縣','澎湖縣','金門縣','連江縣',
 ];
 
-const AVATARS=['🐰','🐻','🐱','🦊','🐼','🦄','🐧','🐨','🦁','🐶','🐹','🦋'];
+const GENDERS=[{value:'female',label:'女性'},{value:'male',label:'男性'},{value:'other',label:'其他'},{value:'undisclosed',label:'不透露'}];
 
 async function fetchProducts(){
   const {data,error}=await supabaseClient.from('products').select('*').order('created_at',{ascending:true});
@@ -72,13 +72,23 @@ async function fetchProfile(userId){
   return data;
 }
 
-async function upsertProfile({displayName,avatar,homeRegion}){
+async function upsertProfile({displayName,avatar,homeRegion,birthDate,gender}){
   const{data:{user}}=await supabaseClient.auth.getUser();
   const{data,error}=await supabaseClient.from('profiles').upsert({
-    id:user.id,display_name:displayName,avatar,home_region:homeRegion,updated_at:new Date().toISOString(),
+    id:user.id,display_name:displayName,avatar,home_region:homeRegion,
+    birth_date:birthDate||null,gender:gender||null,updated_at:new Date().toISOString(),
   }).select().single();
   if(error)throw error;
   return data;
+}
+
+async function uploadAvatar(file){
+  const{data:{user}}=await supabaseClient.auth.getUser();
+  const path=`${user.id}/avatar`;
+  const{error}=await supabaseClient.storage.from('avatars').upload(path,file,{upsert:true,cacheControl:'3600'});
+  if(error)throw error;
+  const{data}=supabaseClient.storage.from('avatars').getPublicUrl(path);
+  return `${data.publicUrl}?t=${Date.now()}`;
 }
 
 async function fetchMyListings(userId){

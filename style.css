@@ -39,9 +39,6 @@ a{color:inherit}
   font-family:var(--sans);font-size:.8rem;letter-spacing:.05em;text-decoration:underline;padding:0;
 }
 .logout-btn:hover{color:var(--rose)}
-
-/* ---------- Auth guard ---------- */
-html.auth-pending body{display:none}
 .issue-line{
   border-bottom:1px solid var(--rule);
   font-family:var(--latin);font-size:.78rem;letter-spacing:.3em;color:var(--ink-soft);

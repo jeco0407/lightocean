@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" class="auth-pending">
+<html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,10 +21,7 @@
         <a href="index.html#trust">TRUST 安心保障</a>
         <a href="items.html?action=list">LIST 我要出租</a>
       </nav>
-      <div class="user-area">
-        <span id="userBadge" class="user-badge"></span>
-        <button id="logoutBtn" class="logout-btn" type="button">登出</button>
-      </div>
+      <div class="user-area" id="authArea"></div>
     </div>
   </div>
 </div>
@@ -109,6 +106,16 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="loginPromptOverlay">
+  <div class="modal" style="text-align:center">
+    <button class="modal-close" type="button" data-close aria-label="關閉">✕</button>
+    <span class="no">MEMBERS ONLY</span>
+    <h2>請先登入會員</h2>
+    <p style="color:var(--ink-soft);font-size:.9rem;margin-bottom:24px">登入後才能刊登你的裝備,註冊只要幾秒鐘。</p>
+    <a class="btn" href="auth.html" id="loginPromptLink">前往登入 / 註冊</a>
+  </div>
+</div>
+
 <footer>
   <span class="fm">LIGHT OCEAN — 手燈租借所</span>
   粉絲互助租借媒合平台(MVP 測試中)・平台僅提供媒合資訊,交易細節請依平台規範進行。© 2026
@@ -116,7 +123,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="supabase-client.js"></script>
-<script src="auth-guard.js"></script>
+<script src="auth-status.js"></script>
 <script src="data.js"></script>
 <script>
 let PRODUCTS=[],LISTINGS=[];
@@ -229,7 +236,8 @@ lsProduct.addEventListener('change',()=>{
   newProductFields.style.display=lsProduct.value==='__new__'?'':'none';
 });
 
-document.getElementById('openListBtn').addEventListener('click',()=>{
+document.getElementById('openListBtn').addEventListener('click',async ()=>{
+  if(!(await requireLogin()))return;
   populateProductSelect();
   listForm.reset();
   newProductFields.style.display='none';
@@ -270,14 +278,16 @@ listForm.addEventListener('submit',async e=>{
   }
 });
 
-document.addEventListener('authready', async () => {
+(async () => {
   await reloadData();
   render();
   if(new URLSearchParams(location.search).get('action')==='list'){
-    populateProductSelect();
-    openModal(listOverlay);
+    if(await requireLogin()){
+      populateProductSelect();
+      openModal(listOverlay);
+    }
   }
-});
+})();
 </script>
 </body>
 </html>

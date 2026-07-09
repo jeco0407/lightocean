@@ -40,21 +40,21 @@ alter table products enable row level security;
 alter table listings enable row level security;
 alter table inquiries enable row level security;
 
--- only logged-in members can browse or list items
-create policy "read products for members" on products
-  for select using (auth.role() = 'authenticated');
+-- anyone can browse; only logged-in members can list items or send inquiries
+create policy "public read products" on products
+  for select using (true);
 
 create policy "insert products for members" on products
-  for insert with check (auth.role() = 'authenticated');
+  for insert with check (auth.role() = 'authenticated' and created_by = auth.uid());
 
-create policy "read listings for members" on listings
-  for select using (auth.role() = 'authenticated');
+create policy "public read listings" on listings
+  for select using (true);
 
 create policy "insert listings for members" on listings
-  for insert with check (auth.role() = 'authenticated');
+  for insert with check (auth.role() = 'authenticated' and created_by = auth.uid());
 
 create policy "insert inquiries for members" on inquiries
-  for insert with check (auth.role() = 'authenticated');
+  for insert with check (auth.role() = 'authenticated' and created_by = auth.uid());
 
 create policy "read own inquiries" on inquiries
   for select using (auth.uid() = created_by);

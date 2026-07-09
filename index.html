@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" class="auth-pending">
+<html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,10 +21,7 @@
         <a href="#trust">TRUST 安心保障</a>
         <a href="items.html?action=list">LIST 我要出租</a>
       </nav>
-      <div class="user-area">
-        <span id="userBadge" class="user-badge"></span>
-        <button id="logoutBtn" class="logout-btn" type="button">登出</button>
-      </div>
+      <div class="user-area" id="authArea"></div>
     </div>
   </div>
 </div>
@@ -145,10 +142,10 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="supabase-client.js"></script>
-<script src="auth-guard.js"></script>
+<script src="auth-status.js"></script>
 <script src="data.js"></script>
 <script>
-document.addEventListener('authready', async () => {
+(async () => {
   const teaserGrid=document.getElementById('teaserGrid');
   const [products,listings]=await Promise.all([fetchProducts(),fetchAllListings()]);
   const teaserProducts=products.slice(0,4);
@@ -168,7 +165,7 @@ document.addEventListener('authready', async () => {
       <span class="btn" aria-hidden="true">查看 →</span>
     </a>`;
   }).join('');
-});
+})();
 </script>
 </body>
 </html>

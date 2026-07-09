@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" class="auth-pending">
+<html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,10 +21,7 @@
         <a href="index.html#trust">TRUST 安心保障</a>
         <a href="items.html?action=list">LIST 我要出租</a>
       </nav>
-      <div class="user-area">
-        <span id="userBadge" class="user-badge"></span>
-        <button id="logoutBtn" class="logout-btn" type="button">登出</button>
-      </div>
+      <div class="user-area" id="authArea"></div>
     </div>
   </div>
 </div>
@@ -88,6 +85,16 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="loginPromptOverlay">
+  <div class="modal" style="text-align:center">
+    <button class="modal-close" type="button" data-close aria-label="關閉">✕</button>
+    <span class="no">MEMBERS ONLY</span>
+    <h2>請先登入會員</h2>
+    <p style="color:var(--ink-soft);font-size:.9rem;margin-bottom:24px">登入後才能詢問出租人,註冊只要幾秒鐘。</p>
+    <a class="btn" href="auth.html" id="loginPromptLink">前往登入 / 註冊</a>
+  </div>
+</div>
+
 <footer>
   <span class="fm">LIGHT OCEAN — 手燈租借所</span>
   粉絲互助租借媒合平台(MVP 測試中)・平台僅提供媒合資訊,交易細節請依平台規範進行。© 2026
@@ -95,10 +102,24 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="supabase-client.js"></script>
-<script src="auth-guard.js"></script>
+<script src="auth-status.js"></script>
 <script src="data.js"></script>
 <script>
-document.addEventListener('authready', async () => {
+/* ---------- Modal helpers (shared by inquiry + login-prompt modals) ---------- */
+function openModal(overlay){
+  overlay.classList.add('open');
+  const body=overlay.querySelector('.modal-body');
+  if(body)body.style.display='';
+  overlay.querySelector('.modal-success')?.classList.remove('show');
+}
+function closeModal(overlay){overlay.classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(ov=>{
+  ov.addEventListener('click',e=>{
+    if(e.target===ov||e.target.closest('[data-close]'))closeModal(ov);
+  });
+});
+
+(async () => {
   const productId=new URLSearchParams(location.search).get('id');
   const product=await fetchProduct(productId);
 
@@ -146,25 +167,13 @@ document.addEventListener('authready', async () => {
   sortSelect.addEventListener('change',render);
   render();
 
-  /* ---------- Modal helpers ---------- */
-  function openModal(overlay){
-    overlay.classList.add('open');
-    overlay.querySelector('.modal-body').style.display='';
-    overlay.querySelector('.modal-success').classList.remove('show');
-  }
-  function closeModal(overlay){overlay.classList.remove('open');}
-  document.querySelectorAll('.modal-overlay').forEach(ov=>{
-    ov.addEventListener('click',e=>{
-      if(e.target===ov||e.target.closest('[data-close]'))closeModal(ov);
-    });
-  });
-
   const inquiryOverlay=document.getElementById('inquiryOverlay');
   const inquiryForm=document.getElementById('inquiryForm');
   const inquiryFormMsg=document.getElementById('inquiryFormMsg');
   let activeListing=null;
-  grid.addEventListener('click',e=>{
+  grid.addEventListener('click',async e=>{
     const b=e.target.closest('[data-inquire]');if(!b)return;
+    if(!(await requireLogin()))return;
     activeListing=LISTINGS.find(l=>l.id===b.dataset.inquire);
     document.getElementById('inquiryItemRef').textContent=`${product.title}・${activeListing.region}・NT$${activeListing.price} / 日`;
     inquiryForm.reset();
@@ -192,7 +201,7 @@ document.addEventListener('authready', async () => {
       submitBtn.disabled=false;
     }
   });
-});
+})();
 </script>
 </body>
 </html>

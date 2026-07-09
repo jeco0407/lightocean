@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" class="auth-pending">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,12 +14,18 @@
 <div class="masthead">
   <div class="wrap">
     <a class="title" href="index.html">LIGHT <b>OCEAN</b></a>
-    <nav>
-      <a href="items.html">RENTAL 找租借</a>
-      <a href="index.html#flow">GUIDE 怎麼租</a>
-      <a href="index.html#trust">TRUST 安心保障</a>
-      <a href="items.html?action=list">LIST 我要出租</a>
-    </nav>
+    <div class="masthead-right">
+      <nav>
+        <a href="items.html">RENTAL 找租借</a>
+        <a href="index.html#flow">GUIDE 怎麼租</a>
+        <a href="index.html#trust">TRUST 安心保障</a>
+        <a href="items.html?action=list">LIST 我要出租</a>
+      </nav>
+      <div class="user-area">
+        <span id="userBadge" class="user-badge"></span>
+        <button id="logoutBtn" class="logout-btn" type="button">登出</button>
+      </div>
+    </div>
   </div>
 </div>
 <div class="issue-line">FANS-TO-FANS RENTAL JOURNAL — VOL.01 / 2026</div>
@@ -70,7 +76,7 @@
         </div>
         <div class="field"><label for="iqMsg">給出租人的話</label><textarea id="iqMsg" placeholder="想租借的場次、地點面交需求等"></textarea></div>
         <button class="btn" type="submit">送出詢問</button>
-        <p class="form-note">送出後平台會將訊息轉交給出租人,不會公開你的聯絡方式。</p>
+        <p class="form-note" id="inquiryFormMsg">送出後平台會將訊息轉交給出租人,不會公開你的聯絡方式。</p>
       </form>
     </div>
     <div class="modal-success" id="inquirySuccess">
@@ -87,21 +93,26 @@
   粉絲互助租借媒合平台(MVP 測試中)・平台僅提供媒合資訊,交易細節請依平台規範進行。© 2026
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-client.js"></script>
+<script src="auth-guard.js"></script>
 <script src="data.js"></script>
 <script>
-const params=new URLSearchParams(location.search);
-const productId=params.get('id');
-const product=PRODUCTS.find(p=>p.id===productId);
+document.addEventListener('authready', async () => {
+  const productId=new URLSearchParams(location.search).get('id');
+  const product=await fetchProduct(productId);
 
-if(!product){
-  document.getElementById('notFound').style.display='';
-}else{
+  if(!product){
+    document.getElementById('notFound').style.display='';
+    return;
+  }
+
   document.title=`${product.title}｜手燈租借所 LIGHT OCEAN`;
   document.getElementById('crumbTitle').textContent=product.title;
   document.getElementById('pIcon').textContent=product.icon;
   document.getElementById('pLabel').textContent=product.label;
   document.getElementById('pTitle').textContent=product.title;
-  document.getElementById('pDesc').textContent=product.desc||'';
+  document.getElementById('pDesc').textContent=product.description||'';
   document.getElementById('productSection').style.display='';
 
   const grid=document.getElementById('grid');
@@ -109,8 +120,10 @@ if(!product){
   const listingCount=document.getElementById('listingCount');
   const sortSelect=document.getElementById('sortSelect');
 
+  let LISTINGS=await fetchListings(product.id);
+
   function render(){
-    const listings=listingsFor(product.id).slice();
+    const listings=LISTINGS.slice();
     if(sortSelect.value==='price'){
       listings.sort((a,b)=>a.price-b.price);
     }else{
@@ -148,19 +161,38 @@ if(!product){
 
   const inquiryOverlay=document.getElementById('inquiryOverlay');
   const inquiryForm=document.getElementById('inquiryForm');
+  const inquiryFormMsg=document.getElementById('inquiryFormMsg');
+  let activeListing=null;
   grid.addEventListener('click',e=>{
     const b=e.target.closest('[data-inquire]');if(!b)return;
-    const listing=LISTINGS.find(l=>l.id===b.dataset.inquire);
-    document.getElementById('inquiryItemRef').textContent=`${product.title}・${listing.region}・NT$${listing.price} / 日`;
+    activeListing=LISTINGS.find(l=>l.id===b.dataset.inquire);
+    document.getElementById('inquiryItemRef').textContent=`${product.title}・${activeListing.region}・NT$${activeListing.price} / 日`;
     inquiryForm.reset();
+    inquiryFormMsg.textContent='送出後平台會將訊息轉交給出租人,不會公開你的聯絡方式。';
     openModal(inquiryOverlay);
   });
-  inquiryForm.addEventListener('submit',e=>{
+  inquiryForm.addEventListener('submit',async e=>{
     e.preventDefault();
-    inquiryOverlay.querySelector('.modal-body').style.display='none';
-    document.getElementById('inquirySuccess').classList.add('show');
+    const submitBtn=inquiryForm.querySelector('button[type="submit"]');
+    submitBtn.disabled=true;
+    inquiryFormMsg.textContent='送出中...';
+    try{
+      await insertInquiry({
+        listingId:activeListing.id,
+        name:document.getElementById('iqName').value.trim(),
+        contact:document.getElementById('iqContact').value.trim(),
+        wantedDate:document.getElementById('iqDate').value,
+        message:document.getElementById('iqMsg').value.trim(),
+      });
+      inquiryOverlay.querySelector('.modal-body').style.display='none';
+      document.getElementById('inquirySuccess').classList.add('show');
+    }catch(err){
+      inquiryFormMsg.textContent=`送出失敗:${err.message}`;
+    }finally{
+      submitBtn.disabled=false;
+    }
   });
-}
+});
 </script>
 </body>
 </html>

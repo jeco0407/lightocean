@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" class="auth-pending">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,12 +14,18 @@
 <div class="masthead">
   <div class="wrap">
     <a class="title" href="index.html">LIGHT <b>OCEAN</b></a>
-    <nav>
-      <a href="items.html">RENTAL 找租借</a>
-      <a href="#flow">GUIDE 怎麼租</a>
-      <a href="#trust">TRUST 安心保障</a>
-      <a href="items.html?action=list">LIST 我要出租</a>
-    </nav>
+    <div class="masthead-right">
+      <nav>
+        <a href="items.html">RENTAL 找租借</a>
+        <a href="#flow">GUIDE 怎麼租</a>
+        <a href="#trust">TRUST 安心保障</a>
+        <a href="items.html?action=list">LIST 我要出租</a>
+      </nav>
+      <div class="user-area">
+        <span id="userBadge" class="user-badge"></span>
+        <button id="logoutBtn" class="logout-btn" type="button">登出</button>
+      </div>
+    </div>
   </div>
 </div>
 <div class="issue-line">FANS-TO-FANS RENTAL JOURNAL — VOL.01 / 2026</div>
@@ -137,26 +143,32 @@
   粉絲互助租借媒合平台(MVP 測試中)・平台僅提供媒合資訊,交易細節請依平台規範進行。© 2026
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-client.js"></script>
+<script src="auth-guard.js"></script>
 <script src="data.js"></script>
 <script>
-const teaserGrid=document.getElementById('teaserGrid');
-const teaserProducts=PRODUCTS.slice(0,4);
-teaserGrid.innerHTML=teaserProducts.map(p=>{
-  const s=productSummary(p);
-  const priceLabel=s.minPrice!=null?`NT$${s.minPrice} 起`:'尚無出租';
-  const countLabel=s.count?`${s.count} 位出租人・${s.regions.join('/')}`:'目前無人出租,當第一位吧';
-  return `
-  <a class="entry" href="item.html?id=${p.id}">
-    <div class="icon">${p.icon}</div>
-    <div>
-      <span class="cat-label">${p.label}</span>
-      <h3>${p.title}</h3>
-      <div class="meta">${countLabel}</div>
-    </div>
-    <div class="pricing"><b>${priceLabel}</b><small>per day / 日</small></div>
-    <span class="btn" aria-hidden="true">查看 →</span>
-  </a>`;
-}).join('');
+document.addEventListener('authready', async () => {
+  const teaserGrid=document.getElementById('teaserGrid');
+  const [products,listings]=await Promise.all([fetchProducts(),fetchAllListings()]);
+  const teaserProducts=products.slice(0,4);
+  teaserGrid.innerHTML=teaserProducts.map(p=>{
+    const s=summarize(listings.filter(l=>l.product_id===p.id));
+    const priceLabel=s.minPrice!=null?`NT$${s.minPrice} 起`:'尚無出租';
+    const countLabel=s.count?`${s.count} 位出租人・${s.regions.join('/')}`:'目前無人出租,當第一位吧';
+    return `
+    <a class="entry" href="item.html?id=${p.id}">
+      <div class="icon">${p.icon}</div>
+      <div>
+        <span class="cat-label">${p.label}</span>
+        <h3>${p.title}</h3>
+        <div class="meta">${countLabel}</div>
+      </div>
+      <div class="pricing"><b>${priceLabel}</b><small>per day / 日</small></div>
+      <span class="btn" aria-hidden="true">查看 →</span>
+    </a>`;
+  }).join('');
+});
 </script>
 </body>
 </html>

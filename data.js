@@ -8,35 +8,58 @@ const REGIONS=[
   '台東縣','澎湖縣','金門縣','連江縣',
 ];
 
-const PRODUCTS=[
-  {id:'p1',cat:'lightstick',icon:'🩷',label:'LIGHTSTICK',title:'ARMY BOMB Ver.4 SE 官方手燈',desc:'BTS 官方應援手燈,支援中控連動。'},
-  {id:'p2',cat:'lightstick',icon:'🖤',label:'LIGHTSTICK',title:'BLACKPINK 官方手燈 Ver.2(槌槌棒)',desc:'BLACKPINK 官方應援手燈。'},
-  {id:'p3',cat:'lightstick',icon:'💚',label:'LIGHTSTICK',title:'NCT 官方手燈 Ver.2',desc:'NCT 官方應援手燈。'},
-  {id:'p4',cat:'phone',icon:'📱',label:'PHONE',title:'iPhone 16 Pro Max 256G(拍攝用)',desc:'高畫質演唱會拍攝用手機。'},
-  {id:'p5',cat:'phone',icon:'📱',label:'PHONE',title:'Galaxy S25 Ultra 10 倍光學變焦',desc:'長焦拍攝首選,適合遠距離座位。'},
-  {id:'p6',cat:'binocular',icon:'🔭',label:'BINOCULAR',title:'Nikon ACULON 10x21 演唱會望遠鏡',desc:'輕便型演唱會望遠鏡。'},
-  {id:'p7',cat:'binocular',icon:'🔭',label:'BINOCULAR',title:'Vixen 6x21 防手震 山頂位救星',desc:'防手震設計,適合山頂視角。'},
-  {id:'p8',cat:'other',icon:'📸',label:'SUPPORT',title:'GoPro 13 + 胸掛(場外應援記錄)',desc:'場外應援側錄裝備。'},
-];
-
-const LISTINGS=[
-  {id:'l1',productId:'p1',region:'台北市',price:350,deposit:1500,meta:'台北面交/店到店・可解綁定',contact:'IG @fan_taipei'},
-  {id:'l2',productId:'p1',region:'台中市',price:330,deposit:1400,meta:'台中高鐵站面交・已解綁定',contact:'LINE ID: lightfan_tc'},
-  {id:'l3',productId:'p2',region:'高雄市',price:300,deposit:1200,meta:'高雄面交優先・附電池',contact:'IG @pink_lover_kh'},
-  {id:'l4',productId:'p3',region:'台中市',price:320,deposit:1300,meta:'台中高鐵站面交',contact:'LINE ID: nct_zen'},
-  {id:'l5',productId:'p4',region:'台北市',price:1200,deposit:15000,meta:'限雙證件・已重置',contact:'Email: phone.rental@example.com'},
-  {id:'l6',productId:'p5',region:'高雄市',price:1100,deposit:15000,meta:'高雄面交・附三腳架轉接',contact:'IG @s25_rental'},
-  {id:'l7',productId:'p6',region:'高雄市',price:150,deposit:800,meta:'可店到店・附收納袋',contact:'LINE ID: nikon_lover'},
-  {id:'l8',productId:'p7',region:'新北市',price:400,deposit:2000,meta:'板橋面交',contact:'IG @vixen_binoc'},
-  {id:'l9',productId:'p8',region:'台中市',price:600,deposit:6000,meta:'限面交',contact:'IG @gopro_support'},
-];
-
-function listingsFor(productId){
-  return LISTINGS.filter(l=>l.productId===productId);
+async function fetchProducts(){
+  const {data,error}=await supabaseClient.from('products').select('*').order('created_at',{ascending:true});
+  if(error){console.error(error);return[];}
+  return data;
 }
-function productSummary(product){
-  const ls=listingsFor(product.id);
-  const prices=ls.map(l=>l.price);
-  const regions=[...new Set(ls.map(l=>l.region))];
-  return {count:ls.length,minPrice:prices.length?Math.min(...prices):null,regions};
+
+async function fetchProduct(id){
+  const {data,error}=await supabaseClient.from('products').select('*').eq('id',id).maybeSingle();
+  if(error){console.error(error);return null;}
+  return data;
+}
+
+async function fetchAllListings(){
+  const {data,error}=await supabaseClient.from('listings').select('*');
+  if(error){console.error(error);return[];}
+  return data;
+}
+
+async function fetchListings(productId){
+  const {data,error}=await supabaseClient.from('listings').select('*').eq('product_id',productId);
+  if(error){console.error(error);return[];}
+  return data;
+}
+
+function summarize(listings){
+  const prices=listings.map(l=>l.price);
+  const regions=[...new Set(listings.map(l=>l.region))];
+  return{count:listings.length,minPrice:prices.length?Math.min(...prices):null,regions};
+}
+
+async function insertProduct({cat,title,description}){
+  const{data:{user}}=await supabaseClient.auth.getUser();
+  const{data,error}=await supabaseClient.from('products').insert({
+    cat,icon:CAT_ICON[cat],label:CAT_LABEL[cat],title,description,created_by:user.id,
+  }).select().single();
+  if(error)throw error;
+  return data;
+}
+
+async function insertListing({productId,region,price,deposit,meta,contact}){
+  const{data:{user}}=await supabaseClient.auth.getUser();
+  const{data,error}=await supabaseClient.from('listings').insert({
+    product_id:productId,region,price,deposit,meta,contact,created_by:user.id,
+  }).select().single();
+  if(error)throw error;
+  return data;
+}
+
+async function insertInquiry({listingId,name,contact,wantedDate,message}){
+  const{data:{user}}=await supabaseClient.auth.getUser();
+  const{error}=await supabaseClient.from('inquiries').insert({
+    listing_id:listingId,name,contact,wanted_date:wantedDate||null,message,created_by:user.id,
+  });
+  if(error)throw error;
 }

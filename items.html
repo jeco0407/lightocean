@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" class="auth-pending">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,12 +14,18 @@
 <div class="masthead">
   <div class="wrap">
     <a class="title" href="index.html">LIGHT <b>OCEAN</b></a>
-    <nav>
-      <a href="items.html">RENTAL 找租借</a>
-      <a href="index.html#flow">GUIDE 怎麼租</a>
-      <a href="index.html#trust">TRUST 安心保障</a>
-      <a href="items.html?action=list">LIST 我要出租</a>
-    </nav>
+    <div class="masthead-right">
+      <nav>
+        <a href="items.html">RENTAL 找租借</a>
+        <a href="index.html#flow">GUIDE 怎麼租</a>
+        <a href="index.html#trust">TRUST 安心保障</a>
+        <a href="items.html?action=list">LIST 我要出租</a>
+      </nav>
+      <div class="user-area">
+        <span id="userBadge" class="user-badge"></span>
+        <button id="logoutBtn" class="logout-btn" type="button">登出</button>
+      </div>
+    </div>
   </div>
 </div>
 <div class="issue-line">FANS-TO-FANS RENTAL JOURNAL — VOL.01 / 2026</div>
@@ -91,7 +97,7 @@
         <div class="field"><label for="lsMeta">交易備註</label><input id="lsMeta" placeholder="面交地點、寄送方式、注意事項"></div>
         <div class="field"><label for="lsContact">你的聯絡方式</label><input id="lsContact" placeholder="Email / 電話 / 社群帳號" required></div>
         <button class="btn" type="submit">送出刊登</button>
-        <p class="form-note">送出後將直接顯示在商品的出租人列表中(MVP 測試階段,無審核延遲)。</p>
+        <p class="form-note" id="listFormMsg">送出後將直接顯示在商品的出租人列表中。</p>
       </form>
     </div>
     <div class="modal-success" id="listSuccess">
@@ -108,8 +114,13 @@
   粉絲互助租借媒合平台(MVP 測試中)・平台僅提供媒合資訊,交易細節請依平台規範進行。© 2026
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-client.js"></script>
+<script src="auth-guard.js"></script>
 <script src="data.js"></script>
 <script>
+let PRODUCTS=[],LISTINGS=[];
+
 const grid=document.getElementById('grid');
 const empty=document.getElementById('empty');
 const regionFilter=document.getElementById('regionFilter');
@@ -119,6 +130,10 @@ let cat='all',region='all';
 regionFilter.innerHTML='<option value="all">所有縣市</option>'
   +REGIONS.map(r=>`<option value="${r}">${r}</option>`).join('');
 
+async function reloadData(){
+  [PRODUCTS,LISTINGS]=await Promise.all([fetchProducts(),fetchAllListings()]);
+}
+
 function tokenize(q){
   return q.trim().split(/\s+/).filter(Boolean);
 }
@@ -127,7 +142,7 @@ function tokenize(q){
    when a token is a county/city, listings are narrowed down to that county/city too */
 function matchProduct(p, tokens, pool){
   if(!tokens.length)return{match:true,listings:pool};
-  const textFields=[p.title,p.desc,p.label,CAT_NAME[p.cat]].filter(Boolean).join(' ').toLowerCase();
+  const textFields=[p.title,p.description,p.label,CAT_NAME[p.cat]].filter(Boolean).join(' ').toLowerCase();
   let listings=pool;
   for(const raw of tokens){
     const t=raw.toLowerCase();
@@ -148,7 +163,7 @@ function render(){
   const results=[];
   PRODUCTS.forEach(p=>{
     if(cat!=='all'&&p.cat!==cat)return;
-    let pool=listingsFor(p.id);
+    let pool=LISTINGS.filter(l=>l.product_id===p.id);
     if(region!=='all'){
       pool=pool.filter(l=>l.region===region);
       if(!pool.length)return;
@@ -158,10 +173,9 @@ function render(){
     results.push({product:p,listings});
   });
   grid.innerHTML=results.map(({product:p,listings})=>{
-    const prices=listings.map(l=>l.price);
-    const regions=[...new Set(listings.map(l=>l.region))];
-    const priceLabel=prices.length?`NT$${Math.min(...prices)} 起`:'尚無出租';
-    const countLabel=listings.length?`${listings.length} 位出租人・${regions.join('/')}`:'目前無人出租,當第一位吧';
+    const s=summarize(listings);
+    const priceLabel=s.minPrice!=null?`NT$${s.minPrice} 起`:'尚無出租';
+    const countLabel=s.count?`${s.count} 位出租人・${s.regions.join('/')}`:'目前無人出租,當第一位吧';
     return `
     <a class="entry" href="item.html?id=${p.id}">
       <div class="icon">${p.icon}</div>
@@ -183,7 +197,6 @@ document.getElementById('catFilters').addEventListener('click',e=>{
 });
 regionFilter.addEventListener('change',e=>{region=e.target.value;render();});
 searchBox.addEventListener('input',render);
-render();
 
 /* ---------- Modal helpers ---------- */
 function openModal(overlay){
@@ -201,6 +214,7 @@ document.querySelectorAll('.modal-overlay').forEach(ov=>{
 /* ---------- Listing modal ---------- */
 const listOverlay=document.getElementById('listOverlay');
 const listForm=document.getElementById('listForm');
+const listFormMsg=document.getElementById('listFormMsg');
 const lsProduct=document.getElementById('lsProduct');
 const newProductFields=document.getElementById('newProductFields');
 
@@ -222,34 +236,48 @@ document.getElementById('openListBtn').addEventListener('click',()=>{
   openModal(listOverlay);
 });
 
-listForm.addEventListener('submit',e=>{
+listForm.addEventListener('submit',async e=>{
   e.preventDefault();
-  let productId=lsProduct.value;
-  if(productId==='__new__'){
-    const title=document.getElementById('lsNewTitle').value.trim();
-    const newCat=document.getElementById('lsNewCat').value;
-    productId='p'+Date.now();
-    PRODUCTS.push({id:productId,cat:newCat,icon:CAT_ICON[newCat],label:CAT_LABEL[newCat],title,desc:''});
+  const submitBtn=listForm.querySelector('button[type="submit"]');
+  submitBtn.disabled=true;
+  listFormMsg.textContent='送出中...';
+  try{
+    let productId=lsProduct.value;
+    if(productId==='__new__'){
+      const title=document.getElementById('lsNewTitle').value.trim();
+      const newCat=document.getElementById('lsNewCat').value;
+      const product=await insertProduct({cat:newCat,title,description:''});
+      productId=product.id;
+    }
+    await insertListing({
+      productId,
+      region:document.getElementById('lsRegion').value,
+      price:Number(document.getElementById('lsPrice').value),
+      deposit:Number(document.getElementById('lsDeposit').value),
+      meta:document.getElementById('lsMeta').value.trim(),
+      contact:document.getElementById('lsContact').value.trim(),
+    });
+    await reloadData();
+    render();
+    listForm.reset();
+    listFormMsg.textContent='送出後將直接顯示在商品的出租人列表中。';
+    listOverlay.querySelector('.modal-body').style.display='none';
+    document.getElementById('listSuccess').classList.add('show');
+  }catch(err){
+    listFormMsg.textContent=`送出失敗:${err.message}`;
+  }finally{
+    submitBtn.disabled=false;
   }
-  LISTINGS.push({
-    id:'l'+Date.now(),
-    productId,
-    region:document.getElementById('lsRegion').value,
-    price:Number(document.getElementById('lsPrice').value),
-    deposit:Number(document.getElementById('lsDeposit').value),
-    meta:document.getElementById('lsMeta').value.trim(),
-    contact:document.getElementById('lsContact').value.trim(),
-  });
-  listForm.reset();
-  render();
-  listOverlay.querySelector('.modal-body').style.display='none';
-  document.getElementById('listSuccess').classList.add('show');
 });
 
-if(new URLSearchParams(location.search).get('action')==='list'){
-  populateProductSelect();
-  openModal(listOverlay);
-}
+document.addEventListener('authready', async () => {
+  await reloadData();
+  render();
+  if(new URLSearchParams(location.search).get('action')==='list'){
+    populateProductSelect();
+    openModal(listOverlay);
+  }
+});
 </script>
 </body>
 </html>

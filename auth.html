@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>會員登入｜手燈租借所 LIGHT OCEAN</title>
+<meta name="description" content="登入或註冊手燈租借所會員,才能瀏覽與刊登租借資訊。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="masthead">
+  <div class="wrap">
+    <a class="title" href="index.html">LIGHT <b>OCEAN</b></a>
+  </div>
+</div>
+<div class="issue-line">FANS-TO-FANS RENTAL JOURNAL — VOL.01 / 2026</div>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <span class="no">MEMBERS ONLY</span>
+    <h1>會員登入</h1>
+    <p class="sec-sub" style="padding-left:0;margin-bottom:20px">需要登入會員才能瀏覽與刊登租借資訊。</p>
+
+    <div class="auth-tabs">
+      <button class="tab active" type="button" data-mode="login">登入</button>
+      <button class="tab" type="button" data-mode="signup">註冊</button>
+    </div>
+
+    <form id="authForm">
+      <div class="field"><label for="authEmail">Email</label><input type="email" id="authEmail" required></div>
+      <div class="field"><label for="authPassword">密碼</label><input type="password" id="authPassword" minlength="6" required></div>
+      <button class="btn" type="submit" id="authSubmit">登入</button>
+      <p class="form-note" id="authMsg"></p>
+    </form>
+  </div>
+</div>
+
+<footer>
+  <span class="fm">LIGHT OCEAN — 手燈租借所</span>
+  粉絲互助租借媒合平台(MVP 測試中)・平台僅提供媒合資訊,交易細節請依平台規範進行。© 2026
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-client.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const next = params.get('next') || 'index.html';
+
+(async () => {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) location.replace(next);
+})();
+
+let mode = 'login';
+const authSubmit = document.getElementById('authSubmit');
+const authMsg = document.getElementById('authMsg');
+
+document.querySelectorAll('.auth-tabs .tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    mode = tab.dataset.mode;
+    document.querySelectorAll('.auth-tabs .tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    authSubmit.textContent = mode === 'login' ? '登入' : '註冊';
+    authMsg.textContent = '';
+  });
+});
+
+document.getElementById('authForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  authMsg.textContent = '處理中...';
+
+  if (mode === 'signup') {
+    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+    if (error) { authMsg.textContent = error.message; return; }
+    if (data.session) { location.href = next; return; }
+    authMsg.textContent = '註冊成功,請直接登入。';
+    document.querySelector('.auth-tabs .tab[data-mode="login"]').click();
+  } else {
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) { authMsg.textContent = error.message; return; }
+    location.href = next;
+  }
+});
+</script>
+</body>
+</html>

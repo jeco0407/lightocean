@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的刊登與詢問｜手燈租借所 LIGHT OCEAN</title>
+<meta name="description" content="管理你刊登的裝備、查看你發出與收到的詢問。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="masthead">
+  <div class="wrap">
+    <a class="title" href="index.html">LIGHT <b>OCEAN</b></a>
+    <div class="masthead-right">
+      <button class="hamburger" id="hamburgerBtn" type="button" aria-label="開啟選單" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav>
+        <a href="items.html">RENTAL 找租借</a>
+        <a href="index.html#flow">GUIDE 怎麼租</a>
+        <a href="index.html#trust">TRUST 安心保障</a>
+        <a href="items.html?action=list">LIST 我要出租</a>
+      </nav>
+      <div class="user-area" id="authArea"></div>
+    </div>
+  </div>
+</div>
+<div class="issue-line">FANS-TO-FANS RENTAL JOURNAL — VOL.01 / 2026</div>
+
+<div class="wrap breadcrumb"><a href="index.html">首頁</a> / 我的刊登與詢問</div>
+
+<section>
+  <div class="wrap" style="max-width:720px">
+    <div class="sec-head"><span class="no">MEMBER</span><h2>我的刊登與詢問</h2></div>
+    <p class="sec-sub" style="padding-left:0">管理你刊登的裝備,查看發出與收到的詢問。</p>
+
+    <div class="auth-tabs" id="mineTabs" style="margin-bottom:24px">
+      <button class="tab active" type="button" data-tab="listings">我的刊登</button>
+      <button class="tab" type="button" data-tab="sent">我發出的詢問</button>
+      <button class="tab" type="button" data-tab="received">收到的詢問</button>
+    </div>
+
+    <div id="listingsPane">
+      <div class="catalog" id="listingsGrid"></div>
+      <p class="empty" id="listingsEmpty">你還沒有刊登任何裝備。</p>
+    </div>
+    <div id="sentPane" style="display:none">
+      <div class="catalog" id="sentGrid"></div>
+      <p class="empty" id="sentEmpty">你還沒有發出任何詢問。</p>
+    </div>
+    <div id="receivedPane" style="display:none">
+      <div class="catalog" id="receivedGrid"></div>
+      <p class="empty" id="receivedEmpty">目前還沒有人詢問你的刊登。</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="fm">LIGHT OCEAN — 手燈租借所</span>
+  粉絲互助租借媒合平台(MVP 測試中)・平台僅提供媒合資訊,交易細節請依平台規範進行。© 2026
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-client.js"></script>
+<script src="data.js"></script>
+<script src="auth-status.js"></script>
+<script src="mobile-nav.js"></script>
+<script>
+(async () => {
+  await sessionReady;
+  if(!currentUser){
+    location.replace(`auth.html?next=${encodeURIComponent(location.pathname)}`);
+    return;
+  }
+
+  const listingsGrid=document.getElementById('listingsGrid');
+  const listingsEmpty=document.getElementById('listingsEmpty');
+  const sentGrid=document.getElementById('sentGrid');
+  const sentEmpty=document.getElementById('sentEmpty');
+  const receivedGrid=document.getElementById('receivedGrid');
+  const receivedEmpty=document.getElementById('receivedEmpty');
+
+  function fmtDate(iso){
+    if(!iso)return '';
+    return new Date(iso).toLocaleDateString('zh-TW');
+  }
+
+  async function loadListings(){
+    const listings=await fetchMyListings(currentUser.id);
+    listingsGrid.innerHTML=listings.map(l=>`
+      <article class="entry">
+        <div class="icon">${l.products?.icon||'📦'}</div>
+        <div>
+          <span class="cat-label">${l.products?.label||''}</span>
+          <h3>${l.products?.title||'(商品已下架)'}</h3>
+          <div class="meta">${l.region}${l.meta?'・'+l.meta:''}</div>
+        </div>
+        <div class="pricing"><b>NT$${l.price}</b><small>押金 NT$${l.deposit}</small></div>
+        <button class="btn line" type="button" data-delete-listing="${l.id}">下架</button>
+      </article>`).join('');
+    listingsEmpty.style.display=listings.length?'none':'block';
+  }
+
+  async function loadSent(){
+    const inquiries=await fetchMyInquiries(currentUser.id);
+    sentGrid.innerHTML=inquiries.map(i=>`
+      <article class="entry">
+        <div class="icon">📨</div>
+        <div>
+          <span class="cat-label">${i.listings?.region||''}</span>
+          <h3>${i.listings?.products?.title||'(商品已下架)'}</h3>
+          <div class="meta">想租日期:${i.wanted_date||'未填'}${i.message?'・'+i.message:''}</div>
+        </div>
+        <div class="pricing"><b>NT$${i.listings?.price??'—'}</b><small>${fmtDate(i.created_at)}</small></div>
+      </article>`).join('');
+    sentEmpty.style.display=inquiries.length?'none':'block';
+  }
+
+  async function loadReceived(){
+    const inquiries=await fetchReceivedInquiries(currentUser.id);
+    receivedGrid.innerHTML=inquiries.map(i=>`
+      <article class="entry">
+        <div class="icon">📩</div>
+        <div>
+          <span class="cat-label">${i.listings?.products?.title||''}</span>
+          <h3>${i.name}(${i.contact})</h3>
+          <div class="meta">想租日期:${i.wanted_date||'未填'}${i.message?'・'+i.message:''}</div>
+        </div>
+        <div class="pricing"><b>${i.listings?.region||''}</b><small>${fmtDate(i.created_at)}</small></div>
+      </article>`).join('');
+    receivedEmpty.style.display=inquiries.length?'none':'block';
+  }
+
+  listingsGrid.addEventListener('click',async e=>{
+    const b=e.target.closest('[data-delete-listing]');if(!b)return;
+    if(!confirm('確定要下架這筆刊登嗎?'))return;
+    await deleteListing(b.dataset.deleteListing);
+    loadListings();
+  });
+
+  document.getElementById('mineTabs').addEventListener('click',e=>{
+    const b=e.target.closest('.tab');if(!b)return;
+    document.querySelectorAll('#mineTabs .tab').forEach(t=>t.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('listingsPane').style.display=b.dataset.tab==='listings'?'':'none';
+    document.getElementById('sentPane').style.display=b.dataset.tab==='sent'?'':'none';
+    document.getElementById('receivedPane').style.display=b.dataset.tab==='received'?'':'none';
+  });
+
+  await Promise.all([loadListings(),loadSent(),loadReceived()]);
+})();
+</script>
+</body>
+</html>

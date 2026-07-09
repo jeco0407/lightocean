@@ -19,7 +19,7 @@ async function renderAuthArea(){
     const profile = await fetchProfile(currentUser.id);
     const label = profile && profile.display_name ? profile.display_name : currentUser.email;
     const avatar = profile && profile.avatar ? `${profile.avatar} ` : '';
-    area.innerHTML = `<span class="user-badge">${avatar}${label}</span><a href="profile.html" class="logout-btn" style="text-decoration:none">會員資料</a><button id="logoutBtn" class="logout-btn" type="button">登出</button>`;
+    area.innerHTML = `<span class="user-badge">${avatar}${label}</span><a href="mine.html" class="logout-btn" style="text-decoration:none">我的刊登</a><a href="profile.html" class="logout-btn" style="text-decoration:none">會員資料</a><button id="logoutBtn" class="logout-btn" type="button">登出</button>`;
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await supabaseClient.auth.signOut();
       location.reload();

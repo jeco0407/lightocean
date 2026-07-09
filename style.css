@@ -33,6 +33,11 @@ a{color:inherit}
 .masthead nav a{text-decoration:none;color:var(--ink-soft);letter-spacing:.08em}
 .masthead nav a:hover,.masthead nav a:focus-visible{color:var(--rose)}
 .user-area{display:flex;align-items:center;gap:14px;font-size:.8rem}
+.hamburger{
+  display:none;flex-direction:column;justify-content:center;gap:5px;
+  background:none;border:none;cursor:pointer;padding:6px;order:-1;
+}
+.hamburger span{display:block;width:22px;height:2px;background:var(--ink)}
 .user-badge{color:var(--ink-soft)}
 .logout-btn{
   background:none;border:none;cursor:pointer;color:var(--ink-soft);
@@ -253,7 +258,16 @@ footer .fm{font-family:var(--latin);letter-spacing:.24em;color:var(--ink);displa
   .entry{grid-template-columns:2.4rem 1fr;grid-template-rows:auto auto;row-gap:14px}
   .entry .pricing{text-align:left;grid-column:2}
   .entry .btn{grid-column:2;justify-self:start}
-  .masthead nav{display:none}
+  .masthead{position:relative}
+  .hamburger{display:flex}
+  .masthead-right nav{
+    display:none;position:absolute;left:0;right:0;top:100%;
+    flex-direction:column;gap:0;background:var(--paper);
+    border-bottom:1px solid var(--ink);padding:4px 5vw 8px;z-index:50;
+  }
+  .masthead-right nav.open{display:flex}
+  .masthead-right nav a{padding:14px 0;border-bottom:1px solid var(--rule)}
+  .masthead-right nav a:last-child{border-bottom:none}
   select.chip{margin-left:0}
   .trust{grid-template-columns:1fr}
   .trust>div{border-right:none;border-bottom:1px solid var(--rule)}

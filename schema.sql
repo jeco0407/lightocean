@@ -71,11 +71,18 @@ create policy "public read listings" on listings
 create policy "insert listings for members" on listings
   for insert with check (auth.role() = 'authenticated' and created_by = auth.uid());
 
+create policy "delete own listings" on listings
+  for delete using (auth.uid() = created_by);
+
 create policy "insert inquiries for members" on inquiries
   for insert with check (auth.role() = 'authenticated' and created_by = auth.uid());
 
-create policy "read own inquiries" on inquiries
-  for select using (auth.uid() = created_by);
+-- a member can see inquiries they sent, and inquiries sent about their own listings
+create policy "read own or received inquiries" on inquiries
+  for select using (
+    auth.uid() = created_by
+    or auth.uid() = (select created_by from listings where listings.id = inquiries.listing_id)
+  );
 
 -- seed sample data (same demo listings the site launched with)
 insert into products (cat, icon, label, title, description) values

@@ -15,6 +15,9 @@
   <div class="wrap">
     <a class="title" href="index.html">LIGHT <b>OCEAN</b></a>
     <div class="masthead-right">
+      <button class="hamburger" id="hamburgerBtn" type="button" aria-label="開啟選單" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
       <nav>
         <a href="items.html">RENTAL 找租借</a>
         <a href="index.html#flow">GUIDE 怎麼租</a>
@@ -61,6 +64,7 @@
 <script src="supabase-client.js"></script>
 <script src="data.js"></script>
 <script src="auth-status.js"></script>
+<script src="mobile-nav.js"></script>
 <script>
 (async () => {
   await sessionReady;

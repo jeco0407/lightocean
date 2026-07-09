@@ -80,3 +80,35 @@ async function upsertProfile({displayName,avatar,homeRegion}){
   if(error)throw error;
   return data;
 }
+
+async function fetchMyListings(userId){
+  const{data,error}=await supabaseClient.from('listings')
+    .select('*, products(title,label,icon)')
+    .eq('created_by',userId)
+    .order('created_at',{ascending:false});
+  if(error){console.error(error);return[];}
+  return data;
+}
+
+async function deleteListing(id){
+  const{error}=await supabaseClient.from('listings').delete().eq('id',id);
+  if(error)throw error;
+}
+
+async function fetchMyInquiries(userId){
+  const{data,error}=await supabaseClient.from('inquiries')
+    .select('*, listings(region,price,products(title))')
+    .eq('created_by',userId)
+    .order('created_at',{ascending:false});
+  if(error){console.error(error);return[];}
+  return data;
+}
+
+async function fetchReceivedInquiries(userId){
+  const{data,error}=await supabaseClient.from('inquiries')
+    .select('*, listings!inner(region,price,created_by,products(title))')
+    .eq('listings.created_by',userId)
+    .order('created_at',{ascending:false});
+  if(error){console.error(error);return[];}
+  return data;
+}

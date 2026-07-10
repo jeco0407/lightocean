@@ -19,9 +19,9 @@ async function getData(id) {
 export async function generateMetadata({ params }) {
   const { product } = await getData(params.id);
   if (!product) {
-    return { title: '商品詳情｜光遇 LUMEET' };
+    return { title: '商品詳情｜LUMEET 光遇' };
   }
-  const title = `${product.title}｜光遇 LUMEET`;
+  const title = `${product.title}｜LUMEET 光遇`;
   const description = product.description || '比較同一件商品的所有出租人資訊,挑選價格最划算或地區最近的出租人。';
   return {
     title,

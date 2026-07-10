@@ -1,8 +1,8 @@
 export const metadata = {
-  title: '品牌故事｜光遇 LUMEET',
+  title: '品牌故事｜LUMEET 光遇',
   description: '因光而遇,因熱愛相聚。Lumeet 光遇——結合 Lumi(光)與 Meet(相遇),讓每一支應援手燈都能在粉絲之間傳遞下去。',
   openGraph: {
-    title: '品牌故事｜光遇 LUMEET',
+    title: '品牌故事｜LUMEET 光遇',
     description: '因光而遇,因熱愛相聚。Lumeet 光遇——結合 Lumi(光)與 Meet(相遇),讓每一支應援手燈都能在粉絲之間傳遞下去。',
     images: ['/hero.png'],
     url: '/about',

@@ -1,5 +1,5 @@
 export const metadata = {
-  title: '找不到頁面｜光遇 LUMEET',
+  title: '找不到頁面｜LUMEET 光遇',
 };
 
 export default function NotFound() {

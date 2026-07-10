@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>批次上傳商品照片｜手燈租借所 LIGHT OCEAN</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="masthead">
+  <div class="wrap">
+    <a class="title" href="index.html">LIGHT <b>OCEAN</b></a>
+    <div class="masthead-right">
+      <button class="hamburger" id="hamburgerBtn" type="button" aria-label="開啟選單" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav>
+        <a href="items.html">RENTAL 找租借</a>
+        <a href="index.html#flow">GUIDE 怎麼租</a>
+        <a href="index.html#trust">TRUST 安心保障</a>
+        <a href="items.html?action=list">LIST 我要出租</a>
+      </nav>
+      <div class="user-area" id="authArea"></div>
+    </div>
+  </div>
+</div>
+<div class="issue-line">FANS-TO-FANS RENTAL JOURNAL — VOL.01 / 2026</div>
+
+<section>
+  <div class="wrap" style="max-width:900px">
+    <div class="sec-head"><span class="no">ADMIN</span><h2>批次上傳商品照片</h2></div>
+    <p class="sec-sub" style="padding-left:0">選擇一個資料夾(或多張圖片),檔名會自動比對商品名稱;確認比對結果沒問題後,按「全部上傳」即可一次設定完成。</p>
+
+    <div class="field">
+      <label for="folderInput">選擇整個資料夾(建議,檔名需與商品名稱相同或相近)</label>
+      <input type="file" id="folderInput" webkitdirectory multiple accept="image/*">
+    </div>
+    <p style="font-size:.8rem;color:var(--ink-soft);margin:6px 0 18px">瀏覽器不支援資料夾選取的話,可改用下面多選圖片:</p>
+    <div class="field">
+      <label for="filesInput">或選擇多張圖片</label>
+      <input type="file" id="filesInput" multiple accept="image/*">
+    </div>
+
+    <div id="matchList" style="margin-top:24px"></div>
+
+    <button class="btn" id="uploadAllBtn" type="button" style="margin-top:20px" disabled>全部上傳</button>
+    <p id="statusMsg" style="margin-top:14px;font-size:.85rem;color:var(--ink-soft)"></p>
+  </div>
+</section>
+
+<footer>
+  <span class="fm">LIGHT OCEAN — 手燈租借所</span>
+  粉絲互助租借媒合平台(MVP 測試中)・平台僅提供媒合資訊,交易細節請依平台規範進行。© 2026
+  <div class="footer-links"><a href="privacy.html">隱私權條款</a></div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-client.js"></script>
+<script src="data.js"></script>
+<script src="auth-status.js"></script>
+<script src="mobile-nav.js"></script>
+<script>
+(async () => {
+  await sessionReady;
+  if(!currentUser){
+    location.replace(`auth.html?next=${encodeURIComponent(location.pathname)}`);
+    return;
+  }
+
+  const products = await fetchProducts();
+
+  function normalize(s){
+    return s.toLowerCase().replace(/[^a-z0-9一-鿿]/g,'');
+  }
+
+  function bestMatch(filename){
+    const base = filename.replace(/\.[^.]+$/,'');
+    const nBase = normalize(base);
+    let best=null, bestScore=0;
+    for(const p of products){
+      const nTitle = normalize(p.title);
+      if(!nTitle || !nBase) continue;
+      let score=0;
+      if(nTitle===nBase) score=100;
+      else if(nTitle.includes(nBase)||nBase.includes(nTitle)) score=60;
+      if(score>bestScore){ bestScore=score; best=p; }
+    }
+    return bestScore>0?best:null;
+  }
+
+  const matchListEl=document.getElementById('matchList');
+  const uploadAllBtn=document.getElementById('uploadAllBtn');
+  const statusMsg=document.getElementById('statusMsg');
+  let rows=[];
+
+  function renderRows(fileList){
+    rows=[];
+    matchListEl.innerHTML='';
+    const optionsHtml='<option value="">— 不上傳 —</option>'+products.map(p=>`<option value="${p.id}">${p.title}</option>`).join('');
+    [...fileList].forEach(file=>{
+      const match=bestMatch(file.name);
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--rule)';
+
+      const img=document.createElement('img');
+      img.style.cssText='width:52px;height:52px;object-fit:cover;border-radius:6px;background:var(--paper-deep);flex-shrink:0';
+      img.src=URL.createObjectURL(file);
+
+      const nameSpan=document.createElement('span');
+      nameSpan.style.cssText='flex:1;font-size:.85rem;word-break:break-all';
+      nameSpan.textContent=file.name;
+
+      const select=document.createElement('select');
+      select.style.cssText='border:1px solid var(--rule);padding:6px 8px;font-size:.82rem;max-width:260px;background:#fff';
+      select.innerHTML=optionsHtml;
+      if(match) select.value=match.id;
+
+      row.append(img,nameSpan,select);
+      matchListEl.appendChild(row);
+      rows.push({file,select});
+    });
+    uploadAllBtn.disabled=rows.length===0;
+    statusMsg.textContent=rows.length?`共 ${rows.length} 張圖片,已自動比對 ${rows.filter(r=>r.select.value).length} 張,確認無誤後按「全部上傳」。`:'';
+  }
+
+  document.getElementById('folderInput').addEventListener('change',e=>renderRows(e.target.files));
+  document.getElementById('filesInput').addEventListener('change',e=>renderRows(e.target.files));
+
+  uploadAllBtn.addEventListener('click',async()=>{
+    uploadAllBtn.disabled=true;
+    let done=0, skipped=0, failed=0;
+    for(const {file,select} of rows){
+      if(!select.value){ skipped++; continue; }
+      try{
+        const url=await uploadPhoto(file,'products');
+        await updateProductImage(select.value,url);
+        done++;
+      }catch(err){
+        console.error(err);
+        failed++;
+      }
+      statusMsg.textContent=`處理中... 已完成 ${done},略過 ${skipped},失敗 ${failed}`;
+    }
+    statusMsg.textContent=`完成!已上傳並設定 ${done} 張,略過 ${skipped} 張,失敗 ${failed} 張。`;
+    uploadAllBtn.disabled=false;
+  });
+})();
+</script>
+</body>
+</html>

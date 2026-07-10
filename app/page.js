@@ -61,7 +61,7 @@ export default async function HomePage() {
           <div className="sec-head"><span className="no">NO.01</span><h2>本期精選商品</h2></div>
           <p className="sec-sub">點進商品可比較所有出租人的價格與地區,挑選最划算的一個。</p>
 
-          <div className="catalog">
+          <div className="catalog" id="teaserGrid">
             {teaserProducts.map(p => {
               const productListings = listings.filter(l => l.product_id === p.id);
               const s = summarize(productListings);

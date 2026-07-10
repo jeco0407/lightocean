@@ -3,7 +3,7 @@ export default function Footer() {
     <footer>
       <span className="fm">LUMEET — 光遇</span>
       粉絲互助租借媒合平台(MVP 測試中)・平台僅提供媒合資訊,交易細節請依平台規範進行。© 2026
-      <div className="footer-links"><a href="/privacy.html">隱私權條款</a></div>
+      <div className="footer-links"><a href="/about">品牌故事</a> ・ <a href="/privacy.html">隱私權條款</a></div>
     </footer>
   );
 }

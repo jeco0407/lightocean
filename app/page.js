@@ -43,13 +43,15 @@ export default async function HomePage() {
       <header className="hero hero-photo">
         <div className="hero-inner">
           <div className="hero-text">
-            <div className="kicker">光遇</div>
+            <div className="kicker">光遇 LUMEET</div>
+            <p className="slogan">因光而遇,因熱愛相聚。</p>
             <h1>讓每一場應援,<br />都更完整。</h1>
             <p className="hero-tag">手燈・拍攝手機・其他應援,粉絲之間互相租借。</p>
             <div className="hero-actions">
               <a className="btn" href="/items">瀏覽可租物品</a>
               <a className="btn line" href="/items?action=list">刊登我的裝備</a>
             </div>
+            <a href="/about" className="story-link">了解 Lumeet 的品牌故事 →</a>
           </div>
           <div className="hero-photo-box">
             <Image src="/hero.png" alt="演唱會現場,粉絲揮舞應援手燈" fill sizes="(max-width: 760px) 100vw, 55vw" style={{ objectFit: 'cover', objectPosition: 'center 30%' }} priority />

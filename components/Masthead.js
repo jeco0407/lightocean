@@ -72,6 +72,7 @@ export default function Masthead() {
             <a href="/items">找租借</a>
             <a href="/#flow">怎麼租</a>
             <a href="/#trust">安心保障</a>
+            <a href="/about">品牌故事</a>
             <a href="/items?action=list">我要出租</a>
           </nav>
           <div className="user-area">

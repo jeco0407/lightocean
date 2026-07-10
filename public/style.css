@@ -92,6 +92,15 @@ h1{
 }
 .hero-tag{color:var(--ink-soft);font-size:.95rem;margin:18px 0 34px}
 .hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+.slogan{
+  font-family:var(--latin);font-style:italic;font-size:1.3rem;color:var(--rose);
+  letter-spacing:.03em;margin:6px 0 14px;
+}
+.story-link{
+  display:inline-block;margin-top:18px;font-size:.85rem;color:var(--ink-soft);
+  text-decoration:underline;letter-spacing:.04em;
+}
+.story-link:hover,.story-link:focus-visible{color:var(--rose)}
 
 /* ===== Hero 滿版照片版 ===== */
 .hero-photo{padding:0;border-bottom:1px solid var(--ink);overflow:hidden}
@@ -303,6 +312,19 @@ select.chip{margin-left:auto;appearance:none;padding-right:36px;
 .cta h2{font-family:var(--serif);font-weight:900;font-size:1.7rem;margin-bottom:14px;letter-spacing:.04em}
 .cta p{color:var(--ink-soft);max-width:540px;margin:0 auto 32px;font-size:.92rem}
 .cta .btn{margin:0 8px 10px}
+
+/* ---------- Brand story page ---------- */
+.story-hero{border-bottom:1px solid var(--ink);padding:60px 0 50px;text-align:center}
+.story-hero .kicker{justify-content:center}
+.story-hero h1{font-size:clamp(1.8rem,4vw,2.6rem);max-width:680px;margin:0 auto}
+.story-body{max-width:640px;margin:0 auto;padding:60px 0}
+.story-body p{font-size:1rem;color:var(--ink);margin-bottom:26px}
+.story-body p.lede{font-family:var(--serif);font-size:1.15rem;color:var(--ink-soft)}
+.story-body .brand-mark{font-family:var(--serif);font-weight:900;color:var(--rose)}
+.story-body p.story-slogan{
+  font-family:var(--latin);font-style:italic;font-size:1.4rem;color:var(--rose);
+  text-align:center;margin:44px 0;letter-spacing:.03em;
+}
 
 footer{padding:36px 0 44px;text-align:center;color:var(--ink-soft);font-size:.8rem}
 footer .fm{font-family:var(--latin);letter-spacing:.24em;color:var(--ink);display:block;margin-bottom:6px}

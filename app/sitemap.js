@@ -13,6 +13,7 @@ export default async function sitemap() {
   const staticRoutes = [
     { url: `${BASE_URL}/`, changeFrequency: 'daily', priority: 1 },
     { url: `${BASE_URL}/items`, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${BASE_URL}/about`, changeFrequency: 'monthly', priority: 0.6 },
   ];
 
   const productRoutes = (products || []).map(p => ({

@@ -167,3 +167,16 @@ union all
 select id, '新北市', 400, 2000, '板橋面交', 'IG @vixen_binoc' from products where title='Vixen 6x21 防手震 山頂位救星'
 union all
 select id, '台中市', 600, 6000, '限面交', 'IG @gopro_support' from products where title='GoPro 13 + 胸掛(場外應援記錄)';
+
+-- additional popular lightsticks (added later, run only this block on an already-seeded DB)
+insert into products (cat, icon, label, title, description) values
+('lightstick','💎','LIGHTSTICK','SEVENTEEN CARAT BONG Ver.4','SEVENTEEN 官方應援手燈,支援藍牙 App 連動。'),
+('lightstick','⚡','LIGHTSTICK','Stray Kids 官方手燈 Ver.3','Stray Kids 官方應援手燈。'),
+('lightstick','🍬','LIGHTSTICK','TWICE Candy Bong ▂','TWICE 官方應援手燈,糖果造型設計。');
+
+insert into listings (product_id, region, price, deposit, meta, contact)
+select id, '台北市', 340, 1500, '台北面交・已解綁定', 'IG @carat_rental' from products where title='SEVENTEEN CARAT BONG Ver.4'
+union all
+select id, '高雄市', 320, 1400, '高雄面交/店到店', 'LINE ID: stay_kh' from products where title='Stray Kids 官方手燈 Ver.3'
+union all
+select id, '台中市', 300, 1300, '台中高鐵站面交・附電池', 'IG @once_tc' from products where title='TWICE Candy Bong ▂';

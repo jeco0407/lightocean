@@ -1,6 +1,6 @@
 import { supabaseServer } from '../lib/supabaseServer';
 
-const BASE_URL = 'https://lightocean.vercel.app';
+const BASE_URL = 'https://lumeet.vercel.app';
 
 export default async function sitemap() {
   const supabase = supabaseServer();

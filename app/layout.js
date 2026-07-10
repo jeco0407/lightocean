@@ -3,7 +3,7 @@ import Masthead from '../components/Masthead';
 import Footer from '../components/Footer';
 
 export const metadata = {
-  metadataBase: new URL('https://lightocean.vercel.app'),
+  metadataBase: new URL('https://lumeet.vercel.app'),
   title: '光遇 LUMEET',
   description: '演唱會應援手燈、拍攝手機租借媒合平台。粉絲之間互相出租,讓每一支燈都不缺席燈海。',
 };

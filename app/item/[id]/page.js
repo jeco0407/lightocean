@@ -3,7 +3,7 @@ import { supabaseServer } from '../../../lib/supabaseServer';
 import { summarize } from '../../../lib/constants';
 import ItemDetail from './ItemDetail';
 
-const SITE_URL = 'https://lightocean.vercel.app';
+const SITE_URL = 'https://lumeet.vercel.app';
 
 export const dynamic = 'force-dynamic';
 

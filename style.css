@@ -252,6 +252,20 @@ select.chip{margin-left:auto;appearance:none;padding-right:36px;
 .product-photo-edit label:hover{color:var(--rose)}
 .product-photo-edit input[type="file"]{display:none}
 
+/* ---------- Lender public profile head ---------- */
+.lender-head{
+  display:grid;grid-template-columns:5rem 1fr;gap:26px;align-items:center;
+  padding-bottom:36px;border-bottom:1px solid var(--ink);
+}
+.lender-head .avatar-box{
+  width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;overflow:hidden;background:var(--paper-deep);font-size:2.4rem;
+}
+.lender-head .avatar-box img{width:100%;height:100%;object-fit:cover;display:block}
+.lender-head h1{font-size:clamp(1.5rem,3vw,2rem)}
+.lender-head .meta{margin-top:6px}
+.lender-link{color:var(--rose);text-decoration:underline;font-size:.78rem}
+
 /* ---------- Sort bar ---------- */
 .sortbar{
   display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;

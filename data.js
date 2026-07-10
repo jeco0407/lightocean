@@ -114,6 +114,27 @@ async function uploadPhoto(file,folder){
   return data.publicUrl;
 }
 
+async function fetchPublicProfile(userId){
+  const{data,error}=await supabaseClient.from('public_profiles').select('*').eq('id',userId).maybeSingle();
+  if(error){console.error(error);return null;}
+  return data;
+}
+
+async function fetchLenderCompletedCount(userId){
+  const{data,error}=await supabaseClient.from('lender_completed_counts').select('completed_count').eq('lender_id',userId).maybeSingle();
+  if(error){console.error(error);return 0;}
+  return data?.completed_count||0;
+}
+
+async function fetchLenderListings(userId){
+  const{data,error}=await supabaseClient.from('listings')
+    .select('*, products(title,label,icon,image_url)')
+    .eq('created_by',userId)
+    .order('created_at',{ascending:false});
+  if(error){console.error(error);return[];}
+  return data;
+}
+
 async function fetchMyListings(userId){
   const{data,error}=await supabaseClient.from('listings')
     .select('*, products(title,label,icon,image_url)')

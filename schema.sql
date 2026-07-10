@@ -186,3 +186,39 @@ union all
 select id, '高雄市', 320, 1400, '高雄面交/店到店', 'LINE ID: stay_kh' from products where title='Stray Kids 官方手燈 Ver.3'
 union all
 select id, '台中市', 300, 1300, '台中高鐵站面交・附電池', 'IG @once_tc' from products where title='TWICE Candy Bong ▂';
+
+-- more artists (added later, run only this block on an already-seeded DB)
+insert into products (cat, icon, label, title, description) values
+('lightstick','🕯️','LIGHTSTICK','IU UAENA BONG Ver.3','IU 官方應援手燈。'),
+('lightstick','✨','LIGHTSTICK','NMIXX 官方手燈','NMIXX 官方應援手燈。'),
+('lightstick','🍼','LIGHTSTICK','BABYMONSTER 官方手燈','BABYMONSTER 官方應援手燈。'),
+('lightstick','🥂','LIGHTSTICK','GOT7 乾杯棒(官方手燈)','GOT7 官方應援手燈,杯型設計。');
+
+insert into listings (product_id, region, price, deposit, meta, contact)
+select id, '台北市', 330, 1500, '台北面交・已解綁定', 'IG @uaena_rental' from products where title='IU UAENA BONG Ver.3'
+union all
+select id, '新北市', 310, 1300, '新北面交', 'LINE ID: nswer_nb' from products where title='NMIXX 官方手燈'
+union all
+select id, '高雄市', 300, 1300, '高雄面交/店到店', 'IG @monstiez_kh' from products where title='BABYMONSTER 官方手燈'
+union all
+select id, '台中市', 320, 1400, '台中高鐵站面交・附電池', 'IG @igot7_tc' from products where title='GOT7 乾杯棒(官方手燈)';
+
+-- ---------- lender public profile page support ----------
+-- profiles has RLS restricting select to "own row only", so a public lender profile
+-- page can't read another member's row directly. These views expose only the
+-- safe-to-show subset (never birth_date/gender/is_admin), and being plain views
+-- owned by the migration-running role, they read the base tables with that
+-- role's privileges rather than the querying visitor's — bypassing RLS by design,
+-- while only ever surfacing columns explicitly listed here.
+create or replace view public_profiles as
+  select id, display_name, avatar, home_region from profiles;
+
+create or replace view lender_completed_counts as
+  select l.created_by as lender_id, count(*) as completed_count
+  from inquiries i
+  join listings l on l.id = i.listing_id
+  where i.status = 'completed' and l.created_by is not null
+  group by l.created_by;
+
+grant select on public_profiles to anon, authenticated;
+grant select on lender_completed_counts to anon, authenticated;

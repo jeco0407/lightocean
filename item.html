@@ -233,7 +233,7 @@ document.querySelectorAll('.modal-overlay').forEach(ov=>{
         <div>
           <span class="cat-label">${l.region}</span>
           <h3>${l.meta||'未提供交易備註'}</h3>
-          <div class="meta">押金 NT$${l.deposit}</div>
+          <div class="meta">押金 NT$${l.deposit}${l.created_by?` ・ <a href="lender.html?id=${l.created_by}" class="lender-link">出租人資料</a>`:''}</div>
         </div>
         <div class="pricing"><b>NT$${l.price}</b><small>per day / 日</small></div>
         <button class="btn" type="button" data-inquire="${l.id}">詢問</button>

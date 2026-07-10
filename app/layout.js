@@ -1,3 +1,4 @@
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import Masthead from '../components/Masthead';
 import Footer from '../components/Footer';
 
@@ -23,6 +24,7 @@ export default function RootLayout({ children }) {
         <div className="issue-line">FANS-TO-FANS RENTAL JOURNAL — VOL.01 / 2026</div>
         {children}
         <Footer />
+        <SpeedInsights />
       </body>
     </html>
   );

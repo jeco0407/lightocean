@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
 import { supabase } from '../../../lib/supabaseBrowser';
 import {
   fetchProfile,
@@ -135,7 +136,7 @@ export default function ItemDetail({ product: initialProduct, initialListings })
       <div className="wrap">
         <div className="product-head">
           <div>
-            <div className="icon">{product.image_url ? <img src={product.image_url} alt="" /> : product.icon}</div>
+            <div className="icon">{product.image_url ? <Image src={product.image_url} alt="" fill sizes="(max-width: 760px) 30vw, 15vw" style={{ objectFit: 'cover' }} priority /> : product.icon}</div>
             {isAdmin && (
               <p className="product-photo-edit">
                 <label htmlFor="pPhotoFile">上傳／更換商品參考圖</label>
@@ -181,7 +182,7 @@ export default function ItemDetail({ product: initialProduct, initialListings })
             const cover = l.image_url || product.image_url;
             return (
               <article className="entry" key={l.id}>
-                <div className="icon">{cover ? <img src={cover} alt="" /> : '📍'}</div>
+                <div className="icon">{cover ? <Image src={cover} alt="" fill sizes="(max-width: 760px) 50vw, 25vw" style={{ objectFit: 'cover' }} /> : '📍'}</div>
                 <div>
                   <span className="cat-label">{l.region}</span>
                   <h3>{l.meta || '未提供交易備註'}</h3>

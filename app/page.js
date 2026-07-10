@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { supabaseServer } from '../lib/supabaseServer';
 import { summarize } from '../lib/constants';
 
@@ -51,7 +52,7 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="hero-photo-box">
-            <img src="/hero.png" alt="演唱會現場,粉絲揮舞應援手燈" />
+            <Image src="/hero.png" alt="演唱會現場,粉絲揮舞應援手燈" fill sizes="(max-width: 760px) 100vw, 55vw" style={{ objectFit: 'cover', objectPosition: 'center 30%' }} priority />
           </div>
         </div>
       </header>
@@ -70,7 +71,7 @@ export default async function HomePage() {
               const cover = productListings.find(l => l.image_url)?.image_url || p.image_url;
               return (
                 <a className="entry" href={`/item/${p.id}`} key={p.id}>
-                  <div className="icon">{cover ? <img src={cover} alt="" /> : p.icon}</div>
+                  <div className="icon">{cover ? <Image src={cover} alt="" fill sizes="(max-width: 760px) 50vw, 25vw" style={{ objectFit: 'cover' }} /> : p.icon}</div>
                   <div>
                     <span className="cat-label">{p.label}</span>
                     <h3>{p.title}</h3>

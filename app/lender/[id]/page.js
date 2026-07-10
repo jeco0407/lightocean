@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { supabaseServer } from '../../../lib/supabaseServer';
 
 export const dynamic = 'force-dynamic';
@@ -62,7 +63,7 @@ export default async function LenderPage({ params }) {
         <div className="wrap">
           <div className="lender-head">
             <div className="avatar-box">
-              {profile?.avatar ? <img src={profile.avatar} alt="" /> : <span className="avatar-fallback-lg">🧑</span>}
+              {profile?.avatar ? <Image src={profile.avatar} alt="" fill sizes="80px" style={{ objectFit: 'cover' }} /> : <span className="avatar-fallback-lg">🧑</span>}
             </div>
             <div>
               <h1>{name}</h1>
@@ -78,7 +79,7 @@ export default async function LenderPage({ params }) {
               const cover = l.image_url || l.products?.image_url;
               return (
                 <a className="entry" href={`/item/${l.product_id}`} key={l.id}>
-                  <div className="icon">{cover ? <img src={cover} alt="" /> : (l.products?.icon || '📦')}</div>
+                  <div className="icon">{cover ? <Image src={cover} alt="" fill sizes="(max-width: 760px) 50vw, 25vw" style={{ objectFit: 'cover' }} /> : (l.products?.icon || '📦')}</div>
                   <div>
                     <span className="cat-label">{l.products?.label || ''}</span>
                     <h3>{l.products?.title || '(商品已下架)'}</h3>

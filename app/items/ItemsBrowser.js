@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '../../lib/supabaseBrowser';
 import { CAT_NAME, REGIONS, summarize } from '../../lib/constants';
@@ -182,7 +183,7 @@ export default function ItemsBrowser({ initialProducts, initialListings }) {
           const cover = pl.find(l => l.image_url)?.image_url || p.image_url;
           return (
             <a className="entry" href={`/item/${p.id}`} key={p.id}>
-              <div className="icon">{cover ? <img src={cover} alt="" /> : p.icon}</div>
+              <div className="icon">{cover ? <Image src={cover} alt="" fill sizes="(max-width: 760px) 50vw, 25vw" style={{ objectFit: 'cover' }} /> : p.icon}</div>
               <div>
                 <span className="cat-label">{p.label}</span>
                 <h3>{p.title}</h3>

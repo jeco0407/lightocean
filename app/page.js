@@ -44,7 +44,7 @@ export default async function HomePage() {
           <div className="hero-text">
             <div className="kicker">手燈租借所</div>
             <h1>讓每一場應援,<br />都更完整。</h1>
-            <p className="hero-tag">手燈・拍攝手機・望遠鏡,粉絲之間互相租借。</p>
+            <p className="hero-tag">手燈・拍攝手機・其他應援,粉絲之間互相租借。</p>
             <div className="hero-actions">
               <a className="btn" href="/items">瀏覽可租物品</a>
               <a className="btn line" href="/items?action=list">刊登我的裝備</a>

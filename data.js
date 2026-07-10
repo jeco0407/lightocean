@@ -10,6 +10,8 @@ const REGIONS=[
 
 const GENDERS=[{value:'female',label:'女性'},{value:'male',label:'男性'},{value:'other',label:'其他'},{value:'undisclosed',label:'不透露'}];
 
+const INQUIRY_STATUS_LABEL={pending:'待確認',confirmed:'已確認租借',completed:'已完成租借',cancelled:'已婉拒'};
+
 async function fetchProducts(){
   const {data,error}=await supabaseClient.from('products').select('*').order('created_at',{ascending:true});
   if(error){console.error(error);return[];}
@@ -128,6 +130,11 @@ async function fetchMyInquiries(userId){
     .order('created_at',{ascending:false});
   if(error){console.error(error);return[];}
   return data;
+}
+
+async function updateInquiryStatus(inquiryId,status){
+  const{error}=await supabaseClient.from('inquiries').update({status}).eq('id',inquiryId);
+  if(error)throw error;
 }
 
 async function fetchReceivedInquiries(userId){

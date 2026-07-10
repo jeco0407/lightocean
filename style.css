@@ -216,6 +216,14 @@ select.chip{margin-left:auto;appearance:none;padding-right:36px;
   font-family:var(--latin);font-size:.68rem;letter-spacing:.22em;color:var(--rose);display:block;margin-bottom:4px;
 }
 .entry .meta{font-size:.78rem;color:var(--ink-soft);margin-top:6px}
+.status-badge{
+  display:inline-block;margin-top:8px;padding:3px 10px;border-radius:999px;
+  font-size:.7rem;letter-spacing:.04em;
+}
+.status-badge.status-pending{background:#f3ead9;color:#8a6a2c}
+.status-badge.status-confirmed{background:#e3efe5;color:#2f7a45}
+.status-badge.status-completed{background:#e6e6e6;color:#555}
+.status-badge.status-cancelled{background:#f6e2e5;color:var(--rose)}
 .entry .pricing{
   text-align:left;min-width:0;margin-top:auto;padding:14px 16px 0;
   display:flex;align-items:baseline;gap:8px;

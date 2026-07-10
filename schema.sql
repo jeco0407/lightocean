@@ -34,6 +34,7 @@ create table if not exists inquiries (
   contact text not null,
   wanted_date date,
   message text,
+  status text not null default 'pending' check (status in ('pending','confirmed','completed','cancelled')),
   created_by uuid references auth.users(id),
   created_at timestamptz not null default now()
 );
@@ -126,6 +127,15 @@ create policy "read own or received inquiries" on inquiries
   for select using (
     auth.uid() = created_by
     or auth.uid() = (select created_by from listings where listings.id = inquiries.listing_id)
+  );
+
+-- only the listing owner can move an inquiry through the conversion funnel
+-- (pending → confirmed/cancelled → completed), so we can later measure conversion rate
+create policy "listing owner can update inquiry status" on inquiries
+  for update using (
+    auth.uid() = (select created_by from listings where listings.id = inquiries.listing_id)
+  ) with check (
+    auth.uid() = (select created_by from listings where listings.id = inquiries.listing_id)
   );
 
 -- seed sample data (same demo listings the site launched with)

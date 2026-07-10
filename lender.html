@@ -45,6 +45,7 @@
         <h1 id="lenderName"></h1>
         <p class="meta" id="lenderRegion"></p>
         <p class="meta" id="lenderTrust"></p>
+        <p class="desc" id="lenderBio" style="display:none"></p>
       </div>
     </div>
 
@@ -91,6 +92,12 @@
   document.getElementById('lenderName').textContent=name;
   document.getElementById('lenderRegion').textContent=profile?.home_region?`常出沒於 ${profile.home_region}`:'';
   document.getElementById('lenderTrust').textContent=completedCount>0?`✓ 已完成 ${completedCount} 次租借交易`:'尚無完成租借紀錄';
+
+  if(profile?.bio){
+    const bioEl=document.getElementById('lenderBio');
+    bioEl.textContent=profile.bio;
+    bioEl.style.display='';
+  }
 
   document.getElementById('lenderAvatarBox').innerHTML=profile?.avatar
     ?`<img src="${profile.avatar}" alt="">`

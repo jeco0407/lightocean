@@ -70,6 +70,10 @@
           <option value="">未設定</option>
         </select>
       </div>
+      <div class="field">
+        <label for="pfBio">自我介紹(選填)</label>
+        <textarea id="pfBio" maxlength="300" placeholder="讓其他粉絲多認識你一點,會顯示在你的出租人資料頁面"></textarea>
+      </div>
       <button class="btn" type="submit">儲存變更</button>
       <p class="form-note" id="profileMsg"></p>
     </form>
@@ -99,6 +103,7 @@
   const pfName=document.getElementById('pfName');
   const pfBirth=document.getElementById('pfBirth');
   const pfGender=document.getElementById('pfGender');
+  const pfBio=document.getElementById('pfBio');
   const profileMsg=document.getElementById('profileMsg');
   const avatarFile=document.getElementById('avatarFile');
   const avatarPreview=document.getElementById('avatarPreview');
@@ -138,6 +143,7 @@
     pfRegion.value=profile.home_region||'';
     pfBirth.value=profile.birth_date||'';
     pfGender.value=profile.gender||'';
+    pfBio.value=profile.bio||'';
     currentAvatarUrl=profile.avatar||null;
     showAvatar(currentAvatarUrl);
   }else{
@@ -158,6 +164,7 @@
         homeRegion:pfRegion.value,
         birthDate:pfBirth.value,
         gender:pfGender.value,
+        bio:pfBio.value.trim(),
       });
       currentAvatarUrl=avatarUrl;
       pendingAvatarFile=null;

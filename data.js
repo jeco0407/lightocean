@@ -84,11 +84,11 @@ async function fetchProfile(userId){
   return data;
 }
 
-async function upsertProfile({displayName,avatar,homeRegion,birthDate,gender}){
+async function upsertProfile({displayName,avatar,homeRegion,birthDate,gender,bio}){
   const{data:{user}}=await supabaseClient.auth.getUser();
   const{data,error}=await supabaseClient.from('profiles').upsert({
     id:user.id,display_name:displayName,avatar,home_region:homeRegion,
-    birth_date:birthDate||null,gender:gender||null,updated_at:new Date().toISOString(),
+    birth_date:birthDate||null,gender:gender||null,bio:bio||null,updated_at:new Date().toISOString(),
   }).select().single();
   if(error)throw error;
   return data;

@@ -46,6 +46,7 @@ create table if not exists profiles (
   home_region text,
   birth_date date,
   gender text,
+  bio text, -- optional self-introduction, shown on the public lender profile page
   is_admin boolean not null default false, -- can edit shared product catalog photos
   updated_at timestamptz not null default now()
 );
@@ -211,7 +212,7 @@ select id, '台中市', 320, 1400, '台中高鐵站面交・附電池', 'IG @igo
 -- role's privileges rather than the querying visitor's — bypassing RLS by design,
 -- while only ever surfacing columns explicitly listed here.
 create or replace view public_profiles as
-  select id, display_name, avatar, home_region from profiles;
+  select id, display_name, avatar, home_region, bio from profiles;
 
 create or replace view lender_completed_counts as
   select l.created_by as lender_id, count(*) as completed_count

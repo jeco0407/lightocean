@@ -42,7 +42,7 @@
     <div class="product-head">
       <div>
         <div class="icon" id="pIcon"></div>
-        <p class="product-photo-edit">
+        <p class="product-photo-edit" id="productPhotoEditBox" style="display:none">
           <label for="pPhotoFile">上傳／更換商品參考圖</label>
           <input type="file" id="pPhotoFile" accept="image/*">
         </p>
@@ -151,6 +151,12 @@ document.querySelectorAll('.modal-overlay').forEach(ov=>{
     pIcon.innerHTML=product.image_url?`<img src="${product.image_url}" alt="">`:product.icon;
   }
   renderProductIcon();
+
+  await sessionReady;
+  if(currentUser){
+    const myProfile=await fetchProfile(currentUser.id);
+    if(myProfile?.is_admin) document.getElementById('productPhotoEditBox').style.display='';
+  }
 
   document.getElementById('pPhotoFile').addEventListener('change',async e=>{
     const file=e.target.files[0];

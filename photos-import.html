@@ -70,6 +70,11 @@
     location.replace(`auth.html?next=${encodeURIComponent(location.pathname)}`);
     return;
   }
+  const myProfile=await fetchProfile(currentUser.id);
+  if(!myProfile?.is_admin){
+    document.querySelector('section').innerHTML='<div class="wrap" style="max-width:900px;padding:60px 0;text-align:center"><p class="sec-sub" style="padding-left:0">此頁面僅限網站管理者使用。</p></div>';
+    return;
+  }
 
   const products = await fetchProducts();
 

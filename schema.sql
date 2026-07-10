@@ -46,6 +46,7 @@ create table if not exists profiles (
   home_region text,
   birth_date date,
   gender text,
+  is_admin boolean not null default false, -- can edit shared product catalog photos
   updated_at timestamptz not null default now()
 );
 
@@ -106,9 +107,14 @@ create policy "insert products for members" on products
 
 -- lets any member set/replace a reference photo for products no one has claimed
 -- (created_by is null, e.g. the seed catalog), otherwise only the product's own creator can update it
-create policy "update own or unclaimed product photo" on products
-  for update using (auth.role() = 'authenticated' and (created_by is null or created_by = auth.uid()))
-  with check (auth.role() = 'authenticated' and (created_by is null or created_by = auth.uid()));
+-- product reference photos are a shared catalog asset, so only site admins may edit them
+-- (regular members would otherwise be able to overwrite official product photos)
+create policy "admin can update product photo" on products
+  for update using (
+    exists (select 1 from profiles where profiles.id = auth.uid() and profiles.is_admin = true)
+  ) with check (
+    exists (select 1 from profiles where profiles.id = auth.uid() and profiles.is_admin = true)
+  );
 
 create policy "public read listings" on listings
   for select using (true);

@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>商品詳情｜手燈租借所 LIGHT OCEAN</title>
 <meta name="description" content="比較同一件商品的所有出租人資訊,挑選價格最划算或地區最近的出租人。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="手燈租借所 LIGHT OCEAN">
+<meta property="og:title" id="ogTitle" content="商品詳情｜手燈租借所 LIGHT OCEAN">
+<meta property="og:description" id="ogDescription" content="比較同一件商品的所有出租人資訊,挑選價格最划算或地區最近的出租人。">
+<meta property="og:image" id="ogImage" content="https://lightocean.vercel.app/hero.png">
+<meta property="og:url" id="ogUrl" content="https://lightocean.vercel.app/item.html">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -153,6 +160,11 @@ document.querySelectorAll('.modal-overlay').forEach(ov=>{
   document.getElementById('pTitle').textContent=product.title;
   document.getElementById('pDesc').textContent=product.description||'';
   document.getElementById('productSection').style.display='';
+
+  document.getElementById('ogTitle').setAttribute('content',`${product.title}｜手燈租借所 LIGHT OCEAN`);
+  document.getElementById('ogDescription').setAttribute('content',product.description||'比較同一件商品的所有出租人資訊,挑選價格最划算或地區最近的出租人。');
+  document.getElementById('ogImage').setAttribute('content',product.image_url||'https://lightocean.vercel.app/hero.png');
+  document.getElementById('ogUrl').setAttribute('content',`https://lightocean.vercel.app/item.html?id=${productId}`);
 
   const pIcon=document.getElementById('pIcon');
   function renderProductIcon(){

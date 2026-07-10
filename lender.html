@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>出租人資料｜手燈租借所 LIGHT OCEAN</title>
 <meta name="description" content="查看出租人的刊登紀錄與租借口碑。">
+<meta property="og:type" content="profile">
+<meta property="og:site_name" content="手燈租借所 LIGHT OCEAN">
+<meta property="og:title" id="ogTitle" content="出租人資料｜手燈租借所 LIGHT OCEAN">
+<meta property="og:description" id="ogDescription" content="查看出租人的刊登紀錄與租借口碑。">
+<meta property="og:image" id="ogImage" content="https://lightocean.vercel.app/hero.png">
+<meta property="og:url" id="ogUrl" content="https://lightocean.vercel.app/lender.html">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -92,6 +99,11 @@
   document.getElementById('lenderName').textContent=name;
   document.getElementById('lenderRegion').textContent=profile?.home_region?`常出沒於 ${profile.home_region}`:'';
   document.getElementById('lenderTrust').textContent=completedCount>0?`✓ 已完成 ${completedCount} 次租借交易`:'尚無完成租借紀錄';
+
+  document.getElementById('ogTitle').setAttribute('content',`${name}｜手燈租借所 LIGHT OCEAN`);
+  document.getElementById('ogDescription').setAttribute('content',profile?.bio||`查看 ${name} 的刊登紀錄與租借口碑。`);
+  document.getElementById('ogImage').setAttribute('content',profile?.avatar||'https://lightocean.vercel.app/hero.png');
+  document.getElementById('ogUrl').setAttribute('content',`https://lightocean.vercel.app/lender.html?id=${lenderId}`);
 
   if(profile?.bio){
     const bioEl=document.getElementById('lenderBio');

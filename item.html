@@ -40,7 +40,13 @@
 <section id="productSection" style="display:none">
   <div class="wrap">
     <div class="product-head">
-      <div class="icon" id="pIcon"></div>
+      <div>
+        <div class="icon" id="pIcon"></div>
+        <p class="product-photo-edit">
+          <label for="pPhotoFile">上傳／更換商品參考圖</label>
+          <input type="file" id="pPhotoFile" accept="image/*">
+        </p>
+      </div>
       <div>
         <span class="cat-label" id="pLabel"></span>
         <h1 id="pTitle"></h1>
@@ -135,11 +141,32 @@ document.querySelectorAll('.modal-overlay').forEach(ov=>{
 
   document.title=`${product.title}｜手燈租借所 LIGHT OCEAN`;
   document.getElementById('crumbTitle').textContent=product.title;
-  document.getElementById('pIcon').textContent=product.icon;
   document.getElementById('pLabel').textContent=product.label;
   document.getElementById('pTitle').textContent=product.title;
   document.getElementById('pDesc').textContent=product.description||'';
   document.getElementById('productSection').style.display='';
+
+  const pIcon=document.getElementById('pIcon');
+  function renderProductIcon(){
+    pIcon.innerHTML=product.image_url?`<img src="${product.image_url}" alt="">`:product.icon;
+  }
+  renderProductIcon();
+
+  document.getElementById('pPhotoFile').addEventListener('change',async e=>{
+    const file=e.target.files[0];
+    if(!file)return;
+    if(!(await requireLogin())){e.target.value='';return;}
+    try{
+      const url=await uploadPhoto(file,'products');
+      await updateProductImage(product.id,url);
+      product.image_url=url;
+      renderProductIcon();
+    }catch(err){
+      alert(`上傳失敗:${err.message}`);
+    }finally{
+      e.target.value='';
+    }
+  });
 
   const grid=document.getElementById('grid');
   const empty=document.getElementById('empty');
@@ -156,9 +183,12 @@ document.querySelectorAll('.modal-overlay').forEach(ov=>{
       listings.sort((a,b)=>a.region.localeCompare(b.region,'zh-Hant'));
     }
     listingCount.textContent=`共 ${listings.length} 位出租人`;
-    grid.innerHTML=listings.map(l=>`
+    grid.innerHTML=listings.map(l=>{
+      const cover=l.image_url||product.image_url;
+      const iconContent=cover?`<img src="${cover}" alt="">`:'📍';
+      return `
       <article class="entry">
-        <div class="icon">📍</div>
+        <div class="icon">${iconContent}</div>
         <div>
           <span class="cat-label">${l.region}</span>
           <h3>${l.meta||'未提供交易備註'}</h3>
@@ -166,7 +196,8 @@ document.querySelectorAll('.modal-overlay').forEach(ov=>{
         </div>
         <div class="pricing"><b>NT$${l.price}</b><small>per day / 日</small></div>
         <button class="btn" type="button" data-inquire="${l.id}">詢問</button>
-      </article>`).join('');
+      </article>`;
+    }).join('');
     empty.style.display=listings.length?'none':'block';
   }
   sortSelect.addEventListener('change',render);

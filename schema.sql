@@ -9,6 +9,7 @@ create table if not exists products (
   label text not null,
   title text not null,
   description text,
+  image_url text, -- reference photo of the device model, shown when no listing photo is set
   created_by uuid references auth.users(id),
   created_at timestamptz not null default now()
 );
@@ -21,6 +22,7 @@ create table if not exists listings (
   deposit integer not null,
   meta text,
   contact text not null,
+  image_url text, -- real photo of the lender's actual item
   created_by uuid references auth.users(id),
   created_at timestamptz not null default now()
 );
@@ -77,12 +79,35 @@ create policy "members can update their own avatar" on storage.objects
 create policy "members can delete their own avatar" on storage.objects
   for delete using (bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1]);
 
+-- product/listing photo uploads: stored at photos/<user_id>/products|listings/<name>, public read, owner-only write
+insert into storage.buckets (id, name, public)
+values ('photos', 'photos', true)
+on conflict (id) do nothing;
+
+create policy "photos are publicly readable" on storage.objects
+  for select using (bucket_id = 'photos');
+
+create policy "members can upload their own photos" on storage.objects
+  for insert with check (bucket_id = 'photos' and auth.uid()::text = (storage.foldername(name))[1]);
+
+create policy "members can update their own photos" on storage.objects
+  for update using (bucket_id = 'photos' and auth.uid()::text = (storage.foldername(name))[1]);
+
+create policy "members can delete their own photos" on storage.objects
+  for delete using (bucket_id = 'photos' and auth.uid()::text = (storage.foldername(name))[1]);
+
 -- anyone can browse; only logged-in members can list items or send inquiries
 create policy "public read products" on products
   for select using (true);
 
 create policy "insert products for members" on products
   for insert with check (auth.role() = 'authenticated' and created_by = auth.uid());
+
+-- lets any member set/replace a reference photo for products no one has claimed
+-- (created_by is null, e.g. the seed catalog), otherwise only the product's own creator can update it
+create policy "update own or unclaimed product photo" on products
+  for update using (auth.role() = 'authenticated' and (created_by is null or created_by = auth.uid()))
+  with check (auth.role() = 'authenticated' and (created_by is null or created_by = auth.uid()));
 
 create policy "public read listings" on listings
   for select using (true);

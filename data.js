@@ -40,22 +40,27 @@ function summarize(listings){
   return{count:listings.length,minPrice:prices.length?Math.min(...prices):null,regions};
 }
 
-async function insertProduct({cat,title,description}){
+async function insertProduct({cat,title,description,imageUrl}){
   const{data:{user}}=await supabaseClient.auth.getUser();
   const{data,error}=await supabaseClient.from('products').insert({
-    cat,icon:CAT_ICON[cat],label:CAT_LABEL[cat],title,description,created_by:user.id,
+    cat,icon:CAT_ICON[cat],label:CAT_LABEL[cat],title,description,image_url:imageUrl||null,created_by:user.id,
   }).select().single();
   if(error)throw error;
   return data;
 }
 
-async function insertListing({productId,region,price,deposit,meta,contact}){
+async function insertListing({productId,region,price,deposit,meta,contact,imageUrl}){
   const{data:{user}}=await supabaseClient.auth.getUser();
   const{data,error}=await supabaseClient.from('listings').insert({
-    product_id:productId,region,price,deposit,meta,contact,created_by:user.id,
+    product_id:productId,region,price,deposit,meta,contact,image_url:imageUrl||null,created_by:user.id,
   }).select().single();
   if(error)throw error;
   return data;
+}
+
+async function updateProductImage(productId,imageUrl){
+  const{error}=await supabaseClient.from('products').update({image_url:imageUrl}).eq('id',productId);
+  if(error)throw error;
 }
 
 async function insertInquiry({listingId,name,contact,wantedDate,message}){
@@ -91,9 +96,20 @@ async function uploadAvatar(file){
   return `${data.publicUrl}?t=${Date.now()}`;
 }
 
+/* folder is 'products' or 'listings', just for tidy storage organisation */
+async function uploadPhoto(file,folder){
+  const{data:{user}}=await supabaseClient.auth.getUser();
+  const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+  const path=`${user.id}/${folder}/${Date.now()}.${ext}`;
+  const{error}=await supabaseClient.storage.from('photos').upload(path,file,{cacheControl:'3600'});
+  if(error)throw error;
+  const{data}=supabaseClient.storage.from('photos').getPublicUrl(path);
+  return data.publicUrl;
+}
+
 async function fetchMyListings(userId){
   const{data,error}=await supabaseClient.from('listings')
-    .select('*, products(title,label,icon)')
+    .select('*, products(title,label,icon,image_url)')
     .eq('created_by',userId)
     .order('created_at',{ascending:false});
   if(error){console.error(error);return[];}

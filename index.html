@@ -155,12 +155,15 @@
   const [products,listings]=await Promise.all([fetchProducts(),fetchAllListings()]);
   const teaserProducts=products.slice(0,4);
   teaserGrid.innerHTML=teaserProducts.map(p=>{
-    const s=summarize(listings.filter(l=>l.product_id===p.id));
+    const productListings=listings.filter(l=>l.product_id===p.id);
+    const s=summarize(productListings);
     const priceLabel=s.minPrice!=null?`NT$${s.minPrice} 起`:'尚無出租';
     const countLabel=s.count?`${s.count} 位出租人・${s.regions.join('/')}`:'目前無人出租,當第一位吧';
+    const cover=productListings.find(l=>l.image_url)?.image_url||p.image_url;
+    const iconContent=cover?`<img src="${cover}" alt="">`:p.icon;
     return `
     <a class="entry" href="item.html?id=${p.id}">
-      <div class="icon">${p.icon}</div>
+      <div class="icon">${iconContent}</div>
       <div>
         <span class="cat-label">${p.label}</span>
         <h3>${p.title}</h3>

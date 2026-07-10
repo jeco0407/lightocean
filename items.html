@@ -85,6 +85,7 @@
               <option value="other">其他應援</option>
             </select>
           </div>
+          <div class="field"><label for="lsNewPhoto">商品參考圖(選填)</label><input type="file" id="lsNewPhoto" accept="image/*"></div>
         </div>
         <div class="field-row">
           <div class="field">
@@ -94,6 +95,7 @@
           <div class="field"><label for="lsPrice">日租金(NT$)</label><input id="lsPrice" type="number" min="0" required></div>
         </div>
         <div class="field"><label for="lsDeposit">押金(NT$)</label><input id="lsDeposit" type="number" min="0" required></div>
+        <div class="field"><label for="lsPhoto">你的實際物品照片</label><input type="file" id="lsPhoto" accept="image/*"></div>
         <div class="field"><label for="lsMeta">交易備註</label><input id="lsMeta" placeholder="面交地點、寄送方式、注意事項"></div>
         <div class="field"><label for="lsContact">你的聯絡方式</label><input id="lsContact" placeholder="Email / 電話 / 社群帳號" required></div>
         <button class="btn" type="submit">送出刊登</button>
@@ -188,9 +190,11 @@ function render(){
     const s=summarize(listings);
     const priceLabel=s.minPrice!=null?`NT$${s.minPrice} 起`:'尚無出租';
     const countLabel=s.count?`${s.count} 位出租人・${s.regions.join('/')}`:'目前無人出租,當第一位吧';
+    const cover=listings.find(l=>l.image_url)?.image_url||p.image_url;
+    const iconContent=cover?`<img src="${cover}" alt="">`:p.icon;
     return `
     <a class="entry" href="item.html?id=${p.id}">
-      <div class="icon">${p.icon}</div>
+      <div class="icon">${iconContent}</div>
       <div>
         <span class="cat-label">${p.label}</span>
         <h3>${p.title}</h3>
@@ -261,9 +265,13 @@ listForm.addEventListener('submit',async e=>{
     if(productId==='__new__'){
       const title=document.getElementById('lsNewTitle').value.trim();
       const newCat=document.getElementById('lsNewCat').value;
-      const product=await insertProduct({cat:newCat,title,description:''});
+      const newPhotoFile=document.getElementById('lsNewPhoto').files[0];
+      const productImageUrl=newPhotoFile?await uploadPhoto(newPhotoFile,'products'):null;
+      const product=await insertProduct({cat:newCat,title,description:'',imageUrl:productImageUrl});
       productId=product.id;
     }
+    const listingPhotoFile=document.getElementById('lsPhoto').files[0];
+    const listingImageUrl=listingPhotoFile?await uploadPhoto(listingPhotoFile,'listings'):null;
     await insertListing({
       productId,
       region:document.getElementById('lsRegion').value,
@@ -271,6 +279,7 @@ listForm.addEventListener('submit',async e=>{
       deposit:Number(document.getElementById('lsDeposit').value),
       meta:document.getElementById('lsMeta').value.trim(),
       contact:document.getElementById('lsContact').value.trim(),
+      imageUrl:listingImageUrl,
     });
     await reloadData();
     render();

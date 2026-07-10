@@ -91,9 +91,12 @@
 
   async function loadListings(){
     const listings=await fetchMyListings(currentUser.id);
-    listingsGrid.innerHTML=listings.map(l=>`
+    listingsGrid.innerHTML=listings.map(l=>{
+      const cover=l.image_url||l.products?.image_url;
+      const iconContent=cover?`<img src="${cover}" alt="">`:(l.products?.icon||'📦');
+      return `
       <article class="entry">
-        <div class="icon">${l.products?.icon||'📦'}</div>
+        <div class="icon">${iconContent}</div>
         <div>
           <span class="cat-label">${l.products?.label||''}</span>
           <h3>${l.products?.title||'(商品已下架)'}</h3>
@@ -101,7 +104,8 @@
         </div>
         <div class="pricing"><b>NT$${l.price}</b><small>押金 NT$${l.deposit}</small></div>
         <button class="btn line" type="button" data-delete-listing="${l.id}">下架</button>
-      </article>`).join('');
+      </article>`;
+    }).join('');
     listingsEmpty.style.display=listings.length?'none':'block';
   }
 

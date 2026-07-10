@@ -42,11 +42,9 @@
     </div>
 
     <div class="filters" id="catFilters">
-      <button class="chip active" data-cat="all">全部</button>
       <button class="chip" data-cat="lightstick">手燈</button>
       <button class="chip" data-cat="phone">拍攝手機</button>
-      <button class="chip" data-cat="binocular">望遠鏡</button>
-      <button class="chip" data-cat="other">其他應援</button>
+      <button class="chip" data-cat="other">其他</button>
       <select class="chip" id="regionFilter" aria-label="選擇縣市"></select>
     </div>
 
@@ -81,8 +79,7 @@
             <select id="lsNewCat">
               <option value="lightstick">手燈</option>
               <option value="phone">拍攝手機</option>
-              <option value="binocular">望遠鏡</option>
-              <option value="other">其他應援</option>
+              <option value="other">其他</option>
             </select>
           </div>
           <div class="field"><label for="lsNewPhoto">商品參考圖(選填)</label><input type="file" id="lsNewPhoto" accept="image/*"></div>
@@ -176,6 +173,7 @@ function render(){
   const tokens=tokenize(searchBox.value);
   const results=[];
   PRODUCTS.forEach(p=>{
+    if(p.cat==='binocular')return;
     if(cat!=='all'&&p.cat!==cat)return;
     let pool=LISTINGS.filter(l=>l.product_id===p.id);
     if(region!=='all'){
@@ -208,8 +206,11 @@ function render(){
 }
 document.getElementById('catFilters').addEventListener('click',e=>{
   const b=e.target.closest('button.chip');if(!b)return;
+  const alreadyActive=b.classList.contains('active');
   document.querySelectorAll('#catFilters button.chip').forEach(c=>c.classList.remove('active'));
-  b.classList.add('active');cat=b.dataset.cat;render();
+  if(alreadyActive){cat='all';}
+  else{b.classList.add('active');cat=b.dataset.cat;}
+  render();
 });
 regionFilter.addEventListener('change',e=>{region=e.target.value;render();});
 searchBox.addEventListener('input',render);

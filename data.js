@@ -1,6 +1,6 @@
 const CAT_LABEL={lightstick:'LIGHTSTICK',phone:'PHONE',binocular:'BINOCULAR',other:'SUPPORT'};
 const CAT_ICON={lightstick:'💡',phone:'📱',binocular:'🔭',other:'📸'};
-const CAT_NAME={lightstick:'手燈',phone:'拍攝手機',binocular:'望遠鏡',other:'其他應援'};
+const CAT_NAME={lightstick:'手燈',phone:'拍攝手機',binocular:'望遠鏡',other:'其他'};
 
 const REGIONS=[
   '台北市','新北市','桃園市','台中市','台南市','高雄市','基隆市','新竹市','嘉義市',

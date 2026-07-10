@@ -80,8 +80,6 @@ a{color:inherit}
 }
 
 /* ---------- Hero ---------- */
-header.hero{padding:70px 0 60px;border-bottom:1px solid var(--ink)}
-.hero .wrap{display:grid;grid-template-columns:1.15fr 1fr;gap:5vw;align-items:center}
 .kicker{
   font-size:.8rem;letter-spacing:.32em;color:var(--rose);font-weight:700;margin-bottom:22px;
 }
@@ -91,7 +89,35 @@ h1{
 }
 .hero-tag{color:var(--ink-soft);font-size:.95rem;margin:18px 0 34px}
 .hero-actions{display:flex;gap:14px;flex-wrap:wrap}
-.hero-art img{width:100%;height:100%;max-height:440px;object-fit:cover;display:block;border-radius:14px}
+
+/* ===== Hero 滿版照片版 ===== */
+.hero-photo{padding:0;border-bottom:1px solid var(--ink);overflow:hidden}
+.hero-inner{
+  display:grid;grid-template-columns:minmax(340px,44%) 1fr;
+  align-items:center;max-width:none;
+}
+.hero-text{
+  padding:80px 4vw 80px max(5vw, calc((100vw - 1080px)/2));
+}
+.hero-photo-box{height:100%;min-height:460px;position:relative}
+.hero-photo-box img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center 30%;
+}
+/* 左緣淡出,讓照片與米白底自然銜接 */
+.hero-photo-box::before{
+  content:"";position:absolute;inset:0;z-index:1;
+  background:linear-gradient(90deg, var(--paper) 0%, transparent 22%);
+}
+
+@media (max-width:760px){
+  .hero-inner{grid-template-columns:1fr}
+  .hero-text{padding:52px 6vw 40px;text-align:left}
+  .hero-photo-box{min-height:240px;order:2}
+  .hero-photo-box::before{
+    background:linear-gradient(180deg, var(--paper) 0%, transparent 20%);
+  }
+}
 .btn{
   display:inline-block;text-decoration:none;cursor:pointer;border:1px solid var(--ink);
   background:var(--ink);color:var(--paper);font-family:var(--sans);font-weight:500;
@@ -286,9 +312,6 @@ footer .footer-links a:hover{color:var(--rose)}
 @media (max-width:520px){.field-row{grid-template-columns:1fr}}
 
 @media (max-width:760px){
-  .hero .wrap{grid-template-columns:1fr;gap:34px}
-  .hero-art{order:-1}
-  .hero-art img{max-height:260px;border-radius:10px}
   .sec-sub{padding-left:0}
   .entry{grid-template-columns:2.4rem 1fr;grid-template-rows:auto auto;row-gap:14px}
   .entry .pricing{text-align:left;grid-column:2}

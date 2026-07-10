@@ -18,9 +18,33 @@ async function renderAuthArea(){
   if(currentUser){
     const profile = await fetchProfile(currentUser.id);
     const label = profile && profile.display_name ? profile.display_name : currentUser.email;
-    const avatar = profile && profile.avatar ? `<img src="${profile.avatar}" class="user-avatar-thumb" alt="">` : '';
-    area.innerHTML = `<span class="user-badge">${avatar}${label}</span><a href="mine.html" class="logout-btn" style="text-decoration:none">我的刊登</a><a href="profile.html" class="logout-btn" style="text-decoration:none">會員資料</a><button id="logoutBtn" class="logout-btn" type="button">登出</button>`;
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
+    const avatarImg = profile && profile.avatar
+      ? `<img src="${profile.avatar}" alt="" class="avatar">`
+      : `<span class="avatar-fallback">🧑</span>`;
+    area.innerHTML = `
+      <div class="member">
+        <button class="member-btn" id="memberBtn" type="button" aria-expanded="false">
+          ${avatarImg}
+          <span>${label}</span>
+          <span class="caret">▾</span>
+        </button>
+        <div class="member-menu" id="memberMenu">
+          <a href="mine.html">我的刊登</a>
+          <a href="profile.html">會員資料</a>
+          <a href="#" class="logout" id="logoutBtn">登出</a>
+        </div>
+      </div>`;
+
+    const btn = document.getElementById('memberBtn');
+    const menu = document.getElementById('memberMenu');
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      menu.classList.toggle('open');
+      btn.setAttribute('aria-expanded', menu.classList.contains('open'));
+    });
+    document.addEventListener('click', () => menu.classList.remove('open'));
+    document.getElementById('logoutBtn').addEventListener('click', async e => {
+      e.preventDefault();
       await supabaseClient.auth.signOut();
       location.reload();
     });

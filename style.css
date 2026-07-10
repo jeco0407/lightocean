@@ -38,13 +38,31 @@ a{color:inherit}
   background:none;border:none;cursor:pointer;padding:6px;order:-1;
 }
 .hamburger span{display:block;width:22px;height:2px;background:var(--ink)}
-.user-badge{color:var(--ink-soft);display:inline-flex;align-items:center;gap:6px}
-.user-avatar-thumb{width:22px;height:22px;border-radius:50%;object-fit:cover}
-.logout-btn{
-  background:none;border:none;cursor:pointer;color:var(--ink-soft);
-  font-family:var(--sans);font-size:.8rem;letter-spacing:.05em;text-decoration:underline;padding:0;
+.member{position:relative}
+.member-btn{
+  display:flex;align-items:center;gap:8px;cursor:pointer;
+  background:none;border:none;font-family:var(--sans);
+  font-size:.85rem;color:var(--ink);letter-spacing:.08em;padding:4px 0;
 }
-.logout-btn:hover{color:var(--rose)}
+.member-btn .avatar{width:26px;height:26px;border-radius:50%;object-fit:cover;border:1px solid var(--rule)}
+.member-btn .avatar-fallback{
+  width:26px;height:26px;border-radius:50%;border:1px solid var(--rule);
+  background:var(--paper-deep);display:flex;align-items:center;justify-content:center;font-size:.9rem;
+}
+.member-btn .caret{font-size:.6rem;color:var(--ink-soft)}
+.member-menu{
+  position:absolute;right:0;top:calc(100% + 12px);min-width:150px;
+  background:var(--paper);border:1px solid var(--ink);
+  display:none;flex-direction:column;z-index:60;
+}
+.member-menu.open{display:flex}
+.member-menu a{
+  padding:12px 18px;text-decoration:none;font-size:.85rem;
+  color:var(--ink-soft);border-bottom:1px solid var(--rule);letter-spacing:.06em;
+}
+.member-menu a:last-child{border-bottom:none}
+.member-menu a:hover{color:var(--rose);background:var(--paper-deep)}
+.member-menu .logout{color:var(--rose)}
 .auth-login-link{
   text-decoration:none;color:var(--ink-soft);font-size:.85rem;letter-spacing:.06em;
 }

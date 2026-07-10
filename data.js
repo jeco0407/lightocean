@@ -65,6 +65,11 @@ async function updateProductImage(productId,imageUrl){
   if(error)throw error;
 }
 
+async function updateProductInfo(productId,{title,description}){
+  const{error}=await supabaseClient.from('products').update({title,description}).eq('id',productId);
+  if(error)throw error;
+}
+
 async function insertInquiry({listingId,name,contact,wantedDate,message}){
   const{data:{user}}=await supabaseClient.auth.getUser();
   const{error}=await supabaseClient.from('inquiries').insert({

@@ -51,6 +51,14 @@
         <span class="cat-label" id="pLabel"></span>
         <h1 id="pTitle"></h1>
         <p class="desc" id="pDesc"></p>
+        <p class="product-photo-edit" id="productInfoEditToggleBox" style="display:none">
+          <label for="pInfoEditToggle" id="pInfoEditToggle">編輯商品名稱／說明</label>
+        </p>
+        <div id="productInfoEditForm" style="display:none;margin-top:14px;max-width:420px">
+          <div class="field"><label for="pTitleInput">商品名稱</label><input id="pTitleInput"></div>
+          <div class="field"><label for="pDescInput">商品說明</label><textarea id="pDescInput"></textarea></div>
+          <button class="btn" type="button" id="pInfoSaveBtn" style="width:auto;padding:9px 20px">儲存</button>
+        </div>
       </div>
     </div>
 
@@ -155,8 +163,35 @@ document.querySelectorAll('.modal-overlay').forEach(ov=>{
   await sessionReady;
   if(currentUser){
     const myProfile=await fetchProfile(currentUser.id);
-    if(myProfile?.is_admin) document.getElementById('productPhotoEditBox').style.display='';
+    if(myProfile?.is_admin){
+      document.getElementById('productPhotoEditBox').style.display='';
+      document.getElementById('productInfoEditToggleBox').style.display='';
+    }
   }
+
+  const infoForm=document.getElementById('productInfoEditForm');
+  document.getElementById('pInfoEditToggle').addEventListener('click',()=>{
+    document.getElementById('pTitleInput').value=product.title;
+    document.getElementById('pDescInput').value=product.description||'';
+    infoForm.style.display=infoForm.style.display==='none'?'':'none';
+  });
+  document.getElementById('pInfoSaveBtn').addEventListener('click',async()=>{
+    const title=document.getElementById('pTitleInput').value.trim();
+    const description=document.getElementById('pDescInput').value.trim();
+    if(!title)return;
+    try{
+      await updateProductInfo(product.id,{title,description});
+      product.title=title;
+      product.description=description;
+      document.title=`${title}｜手燈租借所 LIGHT OCEAN`;
+      document.getElementById('crumbTitle').textContent=title;
+      document.getElementById('pTitle').textContent=title;
+      document.getElementById('pDesc').textContent=description;
+      infoForm.style.display='none';
+    }catch(err){
+      alert(`更新失敗:${err.message}`);
+    }
+  });
 
   document.getElementById('pPhotoFile').addEventListener('change',async e=>{
     const file=e.target.files[0];

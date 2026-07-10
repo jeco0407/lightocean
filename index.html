@@ -121,7 +121,13 @@
 (async () => {
   const teaserGrid=document.getElementById('teaserGrid');
   const [products,listings]=await Promise.all([fetchProducts(),fetchAllListings()]);
-  const teaserProducts=products.filter(p=>p.cat!=='binocular').slice(0,4);
+  const listingCountByProduct={};
+  listings.forEach(l=>{listingCountByProduct[l.product_id]=(listingCountByProduct[l.product_id]||0)+1;});
+  const teaserProducts=products
+    .filter(p=>p.cat!=='binocular')
+    .slice()
+    .sort((a,b)=>(listingCountByProduct[b.id]||0)-(listingCountByProduct[a.id]||0))
+    .slice(0,4);
   teaserGrid.innerHTML=teaserProducts.map(p=>{
     const productListings=listings.filter(l=>l.product_id===p.id);
     const s=summarize(productListings);

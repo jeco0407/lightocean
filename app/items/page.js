@@ -4,10 +4,10 @@ import ItemsBrowser from './ItemsBrowser';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: '找租借｜手燈租借所 LIGHT OCEAN',
+  title: '找租借｜光遇 LUMEET',
   description: '瀏覽可租借的手燈、拍攝手機商品,點進商品可比較所有出租人的價格與地區。',
   openGraph: {
-    title: '找租借｜手燈租借所 LIGHT OCEAN',
+    title: '找租借｜光遇 LUMEET',
     description: '瀏覽可租借的手燈、拍攝手機商品,點進商品可比較所有出租人的價格與地區。',
     images: ['/hero.png'],
     url: '/items',

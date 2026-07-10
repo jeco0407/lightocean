@@ -57,7 +57,7 @@ export default function Masthead() {
   return (
     <div className="masthead">
       <div className="wrap">
-        <a className="title" href="/">LIGHT <b>OCEAN</b></a>
+        <a className="title" href="/">光遇 <b>LUMEET</b></a>
         <div className="masthead-right">
           <button
             className="hamburger"

@@ -24,10 +24,10 @@ async function getData(lenderId) {
 export async function generateMetadata({ params }) {
   const { profile, listings, completedCount } = await getData(params.id);
   if (!profile && !listings.length) {
-    return { title: '出租人資料｜手燈租借所 LIGHT OCEAN' };
+    return { title: '出租人資料｜光遇 LUMEET' };
   }
   const name = profile?.display_name || '這位出租人';
-  const title = `${name}｜手燈租借所 LIGHT OCEAN`;
+  const title = `${name}｜光遇 LUMEET`;
   const description = profile?.bio || `查看 ${name} 的刊登紀錄與租借口碑。`;
   return {
     title,

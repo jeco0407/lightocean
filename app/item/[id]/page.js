@@ -19,9 +19,9 @@ async function getData(id) {
 export async function generateMetadata({ params }) {
   const { product } = await getData(params.id);
   if (!product) {
-    return { title: '商品詳情｜手燈租借所 LIGHT OCEAN' };
+    return { title: '商品詳情｜光遇 LUMEET' };
   }
-  const title = `${product.title}｜手燈租借所 LIGHT OCEAN`;
+  const title = `${product.title}｜光遇 LUMEET`;
   const description = product.description || '比較同一件商品的所有出租人資訊,挑選價格最划算或地區最近的出租人。';
   return {
     title,

@@ -5,10 +5,10 @@ import { summarize } from '../lib/constants';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: '手燈租借所 LIGHT OCEAN｜應援手燈・拍攝手機 粉絲租借誌',
+  title: '光遇 LUMEET｜應援手燈・拍攝手機 粉絲租借誌',
   description: '演唱會應援手燈、拍攝手機租借媒合平台。粉絲之間互相出租,讓每一支燈都不缺席燈海。',
   openGraph: {
-    title: '手燈租借所 LIGHT OCEAN｜應援手燈・拍攝手機 粉絲租借誌',
+    title: '光遇 LUMEET｜應援手燈・拍攝手機 粉絲租借誌',
     description: '演唱會應援手燈、拍攝手機租借媒合平台。粉絲之間互相出租,讓每一支燈都不缺席燈海。',
     images: ['/hero.png'],
     url: '/',
@@ -43,7 +43,7 @@ export default async function HomePage() {
       <header className="hero hero-photo">
         <div className="hero-inner">
           <div className="hero-text">
-            <div className="kicker">手燈租借所</div>
+            <div className="kicker">光遇</div>
             <h1>讓每一場應援,<br />都更完整。</h1>
             <p className="hero-tag">手燈・拍攝手機・其他應援,粉絲之間互相租借。</p>
             <div className="hero-actions">

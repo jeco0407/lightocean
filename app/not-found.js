@@ -1,5 +1,5 @@
 export const metadata = {
-  title: '找不到頁面｜手燈租借所 LIGHT OCEAN',
+  title: '找不到頁面｜光遇 LUMEET',
 };
 
 export default function NotFound() {

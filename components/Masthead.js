@@ -69,10 +69,10 @@ export default function Masthead() {
             <span></span><span></span><span></span>
           </button>
           <nav style={navOpen ? { display: 'flex' } : undefined}>
-            <a href="/items">RENTAL 找租借</a>
-            <a href="/#flow">GUIDE 怎麼租</a>
-            <a href="/#trust">TRUST 安心保障</a>
-            <a href="/items?action=list">LIST 我要出租</a>
+            <a href="/items">找租借</a>
+            <a href="/#flow">怎麼租</a>
+            <a href="/#trust">安心保障</a>
+            <a href="/items?action=list">我要出租</a>
           </nav>
           <div className="user-area">
             {user ? (

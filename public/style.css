@@ -32,7 +32,10 @@ a{color:inherit}
 .masthead nav{display:flex;gap:24px;font-size:.85rem}
 .masthead nav a{text-decoration:none;color:var(--ink-soft);letter-spacing:.08em}
 .masthead nav a:hover,.masthead nav a:focus-visible{color:var(--rose)}
-.user-area{display:flex;align-items:center;gap:14px;font-size:.8rem}
+.user-area{
+  display:flex;align-items:center;gap:14px;font-size:.8rem;
+  margin-left:26px;padding-left:26px;border-left:1px solid var(--rule);
+}
 .hamburger{
   display:none;flex-direction:column;justify-content:center;gap:5px;
   background:none;border:none;cursor:pointer;padding:6px;order:-1;
@@ -70,7 +73,7 @@ a{color:inherit}
 .auth-signup-btn{
   display:inline-block;text-decoration:none;background:var(--rose);color:#fff;
   font-family:var(--sans);font-size:.82rem;font-weight:500;letter-spacing:.08em;
-  padding:9px 22px;border-radius:999px;border:1px solid var(--rose);
+  padding:9px 22px;border-radius:0;border:1px solid var(--rose);
 }
 .auth-signup-btn:hover,.auth-signup-btn:focus-visible{background:var(--ink);border-color:var(--ink)}
 .issue-line{

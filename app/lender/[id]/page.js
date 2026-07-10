@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { notFound } from 'next/navigation';
 import { supabaseServer } from '../../../lib/supabaseServer';
 
 export const dynamic = 'force-dynamic';
@@ -45,12 +46,7 @@ export default async function LenderPage({ params }) {
   const { profile, listings, completedCount } = await getData(params.id);
 
   if (!profile && !listings.length) {
-    return (
-      <div className="wrap" style={{ padding: '70px 0', textAlign: 'center' }}>
-        <p className="sec-sub" style={{ paddingLeft: 0 }}>找不到這位出租人。</p>
-        <a className="btn" href="/items">回到找租借頁面</a>
-      </div>
-    );
+    notFound();
   }
 
   const name = profile?.display_name || '這位出租人';
@@ -63,7 +59,7 @@ export default async function LenderPage({ params }) {
         <div className="wrap">
           <div className="lender-head">
             <div className="avatar-box">
-              {profile?.avatar ? <Image src={profile.avatar} alt="" fill sizes="80px" style={{ objectFit: 'cover' }} /> : <span className="avatar-fallback-lg">🧑</span>}
+              {profile?.avatar ? <Image src={profile.avatar} alt={name} fill sizes="80px" style={{ objectFit: 'cover' }} /> : <span className="avatar-fallback-lg">🧑</span>}
             </div>
             <div>
               <h1>{name}</h1>
@@ -79,7 +75,7 @@ export default async function LenderPage({ params }) {
               const cover = l.image_url || l.products?.image_url;
               return (
                 <a className="entry" href={`/item/${l.product_id}`} key={l.id}>
-                  <div className="icon">{cover ? <Image src={cover} alt="" fill sizes="(max-width: 760px) 50vw, 25vw" style={{ objectFit: 'cover' }} /> : (l.products?.icon || '📦')}</div>
+                  <div className="icon">{cover ? <Image src={cover} alt={l.products?.title || ''} fill sizes="(max-width: 760px) 50vw, 25vw" style={{ objectFit: 'cover' }} /> : (l.products?.icon || '📦')}</div>
                   <div>
                     <span className="cat-label">{l.products?.label || ''}</span>
                     <h3>{l.products?.title || '(商品已下架)'}</h3>

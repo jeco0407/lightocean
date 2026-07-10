@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation';
 import { supabaseServer } from '../../../lib/supabaseServer';
 import { summarize } from '../../../lib/constants';
 import ItemDetail from './ItemDetail';
@@ -39,12 +40,7 @@ export default async function ItemPage({ params }) {
   const { product, listings } = await getData(params.id);
 
   if (!product) {
-    return (
-      <div className="wrap" style={{ padding: '70px 0', textAlign: 'center' }}>
-        <p className="sec-sub" style={{ paddingLeft: 0 }}>找不到這個商品,它可能已經下架。</p>
-        <a className="btn" href="/items">回到找租借頁面</a>
-      </div>
-    );
+    notFound();
   }
 
   const s = summarize(listings);

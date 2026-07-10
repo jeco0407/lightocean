@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /mine.html
+Disallow: /profile.html
+Disallow: /auth.html
+Disallow: /photos-import.html
+
+Sitemap: https://lightocean.vercel.app/sitemap.xml

@@ -1,5 +1,8 @@
 import { supabaseServer } from '../../../lib/supabaseServer';
+import { summarize } from '../../../lib/constants';
 import ItemDetail from './ItemDetail';
+
+const SITE_URL = 'https://lightocean.vercel.app';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,8 +47,31 @@ export default async function ItemPage({ params }) {
     );
   }
 
+  const s = summarize(listings);
+  const image = product.image_url || listings.find(l => l.image_url)?.image_url || `${SITE_URL}/hero.png`;
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.title,
+    description: product.description || `比較「${product.title}」所有出租人的價格與地區。`,
+    image,
+    url: `${SITE_URL}/item/${params.id}`,
+    ...(s.count > 0
+      ? {
+          offers: {
+            '@type': 'AggregateOffer',
+            priceCurrency: 'TWD',
+            lowPrice: s.minPrice,
+            offerCount: s.count,
+            availability: 'https://schema.org/InStock',
+          },
+        }
+      : {}),
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="wrap breadcrumb"><a href="/">首頁</a> / <a href="/items">找租借</a> / <span>{product.title}</span></div>
       <ItemDetail product={product} initialListings={listings} />
     </>

@@ -223,3 +223,71 @@ create or replace view lender_completed_counts as
 
 grant select on public_profiles to anon, authenticated;
 grant select on lender_completed_counts to anon, authenticated;
+
+-- ---------- inquiry email notification ----------
+-- Fires when a new inquiry is created; emails the listing owner via Resend
+-- (https://resend.com) so they don't have to manually check /mine.html.
+-- Uses pg_net for outbound HTTP from Postgres (async, doesn't block the insert).
+-- The Resend API key is embedded directly in the function body — acceptable here
+-- since only the project owner has SQL Editor access; nothing client-facing
+-- ever sees it. Sender is the Resend sandbox domain onboarding@resend.dev,
+-- which works without domain verification (note: NOT onboarding@resend.com —
+-- that's Resend's own domain and returns 403 "domain not verified").
+create extension if not exists pg_net;
+
+create or replace function notify_new_inquiry()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_lender_email text;
+  v_lender_id uuid;
+  v_product_title text;
+  v_region text;
+begin
+  select l.created_by, p.title, l.region
+    into v_lender_id, v_product_title, v_region
+  from listings l
+  join products p on p.id = l.product_id
+  where l.id = new.listing_id;
+
+  if v_lender_id is null then
+    return new;
+  end if;
+
+  select email into v_lender_email from auth.users where id = v_lender_id;
+
+  if v_lender_email is null then
+    return new;
+  end if;
+
+  perform net.http_post(
+    url := 'https://api.resend.com/emails',
+    headers := jsonb_build_object(
+      'Authorization', 'Bearer RESEND_API_KEY_HERE',
+      'Content-Type', 'application/json'
+    ),
+    body := jsonb_build_object(
+      'from', 'LUMEET 光遇 <onboarding@resend.dev>',
+      'to', jsonb_build_array(v_lender_email),
+      'subject', '你的刊登「' || v_product_title || '」收到新的租借詢問',
+      'html',
+        '<p>哈囉,你在 LUMEET 光遇刊登的「' || v_product_title || '」(' || v_region || ')收到一筆新的租借詢問。</p>' ||
+        '<p>詢問人:' || new.name || '<br>聯絡方式:' || new.contact ||
+        case when new.wanted_date is not null then '<br>想租日期:' || new.wanted_date::text else '' end ||
+        case when new.message is not null and new.message <> '' then '<br>留言:' || new.message else '' end ||
+        '</p><p><a href="https://lumeet.vercel.app/mine.html">前往查看並回覆</a></p>'
+    )
+  );
+
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_notify_new_inquiry on inquiries;
+create trigger trg_notify_new_inquiry
+  after insert on inquiries
+  for each row
+  execute function notify_new_inquiry();

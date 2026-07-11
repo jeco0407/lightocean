@@ -31,8 +31,9 @@
 
     <form id="authForm">
       <div class="field"><label for="authEmail">Email</label><input type="email" id="authEmail" required></div>
-      <div class="field"><label for="authPassword">密碼</label><input type="password" id="authPassword" minlength="6" required></div>
+      <div class="field" id="authPasswordField"><label for="authPassword">密碼</label><input type="password" id="authPassword" minlength="6" required></div>
       <button class="btn" type="submit" id="authSubmit">登入</button>
+      <p class="form-note" id="forgotWrap"><a href="#" id="forgotLink">忘記密碼?</a></p>
       <p class="form-note">使用本服務,即表示同意此<a href="/privacy.html">隱私權條款</a>。</p>
       <p class="form-note" id="authMsg"></p>
     </form>
@@ -59,15 +60,40 @@ const next = params.get('next') || '/';
 let mode = 'login';
 const authSubmit = document.getElementById('authSubmit');
 const authMsg = document.getElementById('authMsg');
+const authPasswordField = document.getElementById('authPasswordField');
+const authPassword = document.getElementById('authPassword');
+const forgotWrap = document.getElementById('forgotWrap');
+const forgotLink = document.getElementById('forgotLink');
+
+function applyMode() {
+  authMsg.textContent = '';
+  if (mode === 'reset') {
+    authPasswordField.style.display = 'none';
+    authPassword.required = false;
+    authSubmit.textContent = '寄送重設密碼信';
+    forgotWrap.style.display = 'none';
+  } else {
+    authPasswordField.style.display = '';
+    authPassword.required = true;
+    authSubmit.textContent = mode === 'login' ? '登入' : '註冊';
+    forgotWrap.style.display = mode === 'login' ? '' : 'none';
+  }
+}
 
 document.querySelectorAll('.auth-tabs .tab').forEach(tab => {
   tab.addEventListener('click', () => {
     mode = tab.dataset.mode;
     document.querySelectorAll('.auth-tabs .tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    authSubmit.textContent = mode === 'login' ? '登入' : '註冊';
-    authMsg.textContent = '';
+    applyMode();
   });
+});
+
+forgotLink.addEventListener('click', e => {
+  e.preventDefault();
+  mode = 'reset';
+  document.querySelectorAll('.auth-tabs .tab').forEach(t => t.classList.remove('active'));
+  applyMode();
 });
 
 if (params.get('mode') === 'signup') {
@@ -77,18 +103,29 @@ if (params.get('mode') === 'signup') {
 document.getElementById('authForm').addEventListener('submit', async e => {
   e.preventDefault();
   const email = document.getElementById('authEmail').value.trim();
-  const password = document.getElementById('authPassword').value;
+  const password = authPassword.value;
   authMsg.textContent = '處理中...';
 
-  if (mode === 'signup') {
+  if (mode === 'reset') {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: `${location.origin}/reset-password.html`,
+    });
+    if (error) { authMsg.textContent = error.message; return; }
+    authMsg.textContent = '重設密碼信已寄出,請至信箱查收並點擊連結設定新密碼。';
+  } else if (mode === 'signup') {
     const { data, error } = await supabaseClient.auth.signUp({ email, password });
     if (error) { authMsg.textContent = error.message; return; }
     if (data.session) { location.href = next; return; }
-    authMsg.textContent = '註冊成功,請直接登入。';
+    authMsg.textContent = '註冊成功!請至信箱點擊驗證連結,完成驗證後即可登入。';
     document.querySelector('.auth-tabs .tab[data-mode="login"]').click();
   } else {
     const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if (error) { authMsg.textContent = error.message; return; }
+    if (error) {
+      authMsg.textContent = error.message === 'Email not confirmed'
+        ? '請先至信箱完成驗證後再登入。'
+        : error.message;
+      return;
+    }
     location.href = next;
   }
 });

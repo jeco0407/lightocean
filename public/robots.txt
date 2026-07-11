@@ -4,5 +4,6 @@ Disallow: /mine.html
 Disallow: /profile.html
 Disallow: /auth.html
 Disallow: /photos-import.html
+Disallow: /reset-password.html
 
 Sitemap: https://lumeet.vercel.app/sitemap.xml
